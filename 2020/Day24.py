@@ -1,105 +1,41 @@
 from helper import aoc_timer
 from os import getcwd
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 
-def reduce_inv(instr):
-    INV = {
-        'e': 'w',
-        'se': 'nw',
-        'sw': 'ne'
+def dirs():
+    # Use complex numbers to represent hexagonal grid
+    return {
+        'e': 1,
+        'ne': 0.5+1j,
+        'nw': -0.5+1j,
+        'w': -1,
+        'sw': -0.5-1j,
+        'se': 0.5-1j
         }
-    new = defaultdict(int)
-    for d, inv in INV.items():
-        if d in instr:
-            if inv in instr:
-                if (n := instr[d] - instr[inv]) == 0:
-                    continue
-                elif n > 0:
-                    new[d] = n
-                else:
-                    new[inv] = -n
-            else:
-                new[d] = instr[d]
-        elif inv in instr:
-            new[inv] = instr[inv]
-    return new
-
-
-def reduce_add(instr):
-    ADD = {
-        'e': ('ne', 'se'),
-        'se': ('e', 'sw'),
-        'sw': ('w', 'se'),
-        'w': ('nw', 'sw'),
-        'nw': ('w', 'ne'),
-        'ne': ('e', 'nw')
-        }
-    for a, (b, c) in ADD.items():
-        if b in instr and c in instr:
-            if (n := instr[b]) == (m := instr[c]):
-                instr[a] += n
-                del instr[b], instr[c]
-            elif n > m:
-                instr[a] += m
-                instr[b] = n - m
-                del instr[c]
-            elif m > n:
-                instr[a] += n
-                instr[c] = m - n
-                del instr[b]
-    return instr
-
-
-def reduce(instr):
-    instr = reduce_add(reduce_inv(instr))
-    if len(instr) < 2:
-        return instr
-    if len(instr) == 2:
-        return reduce_add(reduce_inv(instr))
-    return reduce(instr)
 
 
 @aoc_timer
 def get_input(path):
-    D = {'e', 'se', 'sw', 'w', 'nw', 'ne'}
+    D = dirs()
     IN = []
     for line in open(path).read().split('\n'):
-        idx = 0
-        end = len(line)
-        instr = defaultdict(int)
+        instr, idx, end = 0, 0, len(line)
         while idx < end:        
             if (d := line[idx]) in D:
-                instr[d] += 1
+                instr += D[d]
                 idx += 1
             elif (d := line[idx:idx+2]) in D:
-                instr[d] += 1
+                instr += D[d]
                 idx += 2
-        IN.append(tuple(sorted(reduce(instr).items())))
+        IN.append(instr)
     return IN
-
-
-def adjacent(tile):
-    D = {'e', 'se', 'sw', 'w', 'nw', 'ne'}
-    curr, N = defaultdict(int), []
-    for d, n in tile:
-        curr[d] += n
-    for d in D:
-        tmp = curr.copy()
-        tmp[d] += 1
-        N.append(tuple(sorted(reduce(tmp).items())))
-    return N
 
 
 @aoc_timer
 def Day24(data, part1=True):
     # Part 1
-    IN = defaultdict(int)
-    for line in data:
-        IN[line] += 1
-        if IN[line] % 2 == 0:
-            del IN[line]
-    IN = set(IN.keys())
+    IN = {k for k, v in Counter(data).items() if v % 2 != 0}
     if part1:
         return len(IN)
 
@@ -107,12 +43,13 @@ def Day24(data, part1=True):
     for t in range(100):
         S = defaultdict(int)
         for tile in IN:
-            for a in adjacent(tile):
-                S[a] += 1
+            for d, n in dirs().items():
+                S[tile + n] += 1
         # White tiles visited as adjacents
         W = {k for k, v in S.items() if v == 2 and k not in IN}
         # Black tiles visited as adjacents
         B = {a for a in IN & {k for k, v in S.items() if v <= 2}}
+        # New state is union of W and B
         IN = W | B
     return len(IN)
 
@@ -133,5 +70,12 @@ if __name__ == '__main__':
 
 
 '''
+%timeit get_input(path)
+3.73 ms ± 5.37 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
 
+%timeit Day24(data)
+136 µs ± 119 ns per loop (mean ± std. dev. of 7 runs, 10000 loops each)
+
+%timeit Day24(data, False)
+629 ms ± 1.03 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
 '''
