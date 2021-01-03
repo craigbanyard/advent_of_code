@@ -1,6 +1,6 @@
 from helper import aoc_timer
 from os import getcwd
-from collections import defaultdict, Counter
+from collections import defaultdict
 
 
 def dirs():
@@ -18,7 +18,7 @@ def dirs():
 @aoc_timer
 def get_input(path):
     D = dirs()
-    IN = []
+    IN = set()
     for line in open(path).read().split('\n'):
         instr, idx, end = 0, 0, len(line)
         while idx < end:        
@@ -28,30 +28,32 @@ def get_input(path):
             elif (d := line[idx:idx+2]) in D:
                 instr += D[d]
                 idx += 2
-        IN.append(instr)
+        if instr in IN:
+            IN.remove(instr)
+            continue
+        IN.add(instr)
     return IN
 
 
 @aoc_timer
 def Day24(data, part1=True):
     # Part 1
-    IN = {k for k, v in Counter(data).items() if v % 2 != 0}
     if part1:
-        return len(IN)
+        return len(data)
 
     # Part 2
     for t in range(100):
         S = defaultdict(int)
-        for tile in IN:
+        for tile in data:
             for d, n in dirs().items():
                 S[tile + n] += 1
         # White tiles visited as adjacents
-        W = {k for k, v in S.items() if v == 2 and k not in IN}
+        W = {k for k, v in S.items() if v == 2 and k not in data}
         # Black tiles visited as adjacents
-        B = {a for a in IN & {k for k, v in S.items() if v <= 2}}
+        B = {a for a in data & {k for k, v in S.items() if v <= 2}}
         # New state is union of W and B
-        IN = W | B
-    return len(IN)
+        data = W | B
+    return len(data)
 
 
 # %% Output
@@ -71,11 +73,11 @@ if __name__ == '__main__':
 
 '''
 %timeit get_input(path)
-3.73 ms ± 5.37 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
+3.86 ms ± 6.71 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
 
 %timeit Day24(data)
-136 µs ± 119 ns per loop (mean ± std. dev. of 7 runs, 10000 loops each)
+246 ns ± 0.524 ns per loop (mean ± std. dev. of 7 runs, 1000000 loops each)
 
 %timeit Day24(data, False)
-629 ms ± 1.03 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+627 ms ± 930 µs per loop (mean ± std. dev. of 7 runs, 1 loop each)
 '''
