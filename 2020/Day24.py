@@ -17,21 +17,16 @@ def dirs():
 
 @aoc_timer
 def get_input(path):
-    D = dirs()
-    IN = set()
+    D, IN = dirs(), set()
     for line in open(path).read().split('\n'):
         instr, idx, end = 0, 0, len(line)
         while idx < end:        
             if (d := line[idx]) in D:
-                instr += D[d]
                 idx += 1
             elif (d := line[idx:idx+2]) in D:
-                instr += D[d]
                 idx += 2
-        if instr in IN:
-            IN.remove(instr)
-            continue
-        IN.add(instr)
+            instr += D[d]
+        IN ^= {instr}
     return IN
 
 
