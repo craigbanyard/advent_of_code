@@ -8,28 +8,21 @@ def get_input(path):
 
 
 @aoc_timer
-def Day25(data):
-    # Public base and modulus
-    g, p = 7, 20201227
-    # Private keys
-    a, b = False, False
-    # Starting point
-    c, d = 1, 1
-    while not (a and b):
-        c = (c * g) % p
-        if c in data:
-            if a:
-                return pow(c, a, p)
-            a = d
-        d += 1
+def Day25(data, g, p):
+    a, n = 1, 1
+    while n < p:
+        a = (a * g) % p
+        if a in data:
+            b = (data ^ {a}).pop()
+            return pow(b, n, p)
+        n += 1
 
 
 # %% Output
 def main():
     path = getcwd() + "\\Inputs\\Day25.txt"
-    # data = {5764801, 17807724}
     data = get_input(path)
-    print("Day 25:", Day25(data))
+    print("Day 25:", Day25(data, 7, 20201227))
 
 
 if __name__ == '__main__':
@@ -38,8 +31,8 @@ if __name__ == '__main__':
 
 '''
 %timeit get_input(path)
-102 µs ± 2.41 µs per loop (mean ± std. dev. of 7 runs, 10000 loops each)
+101 µs ± 78.8 ns per loop (mean ± std. dev. of 7 runs, 10000 loops each)
 
-%timeit Day25(data)
-1.94 s ± 2.17 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+%timeit Day25(data, 7, 20201227)
+165 ms ± 2.66 ms per loop (mean ± std. dev. of 7 runs, 10 loops each)
 '''
