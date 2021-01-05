@@ -8,6 +8,8 @@ def aoc_timer(func):
         t1 = time() - t0
         if 'get_input' in func.__name__:
             print("-----\nData:", t1)
+        elif kw.get("time") is False:
+            pass
         else:
             print("-----\nTime:", t1)
         return result
