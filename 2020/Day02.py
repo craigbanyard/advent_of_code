@@ -1,5 +1,4 @@
 from helper import aoc_timer
-import re
 from os import getcwd
 
 
@@ -7,9 +6,9 @@ from os import getcwd
 def Day02(path):
     p1, p2 = 0, 0
     for line in open(path).read().split('\n'):
-        x, pwd = line.split(': ')
-        lo, hi = map(int, re.findall('\d+', x))
-        x = x[-1]
+        rng, x, pwd = line.split()
+        lo, hi = map(int, rng.split('-'))
+        x = x[0]
         if lo <= pwd.count(x) <= hi:
             p1 += 1
         if (pwd[lo-1] == x) ^ (pwd[hi-1] == x):
@@ -32,5 +31,5 @@ if __name__ == '__main__':
 
 '''
 %timeit Day02(path)
-3.52 ms ± 3.91 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
+1.55 ms ± 2.46 µs per loop (mean ± std. dev. of 7 runs, 1000 loops each)
 '''
