@@ -3,12 +3,17 @@ from os import getcwd
 
 
 @aoc_timer
-def Day02(path):
-    p1, p2 = 0, 0
+def get_input(path):
     for line in open(path).read().split('\n'):
         rng, x, pwd = line.split()
         lo, hi = map(int, rng.split('-'))
-        x = x[0]
+        yield lo, hi, x[0], pwd
+
+
+@aoc_timer
+def Day02(path):
+    p1, p2 = 0, 0
+    for lo, hi, x, pwd in get_input(path):
         if lo <= pwd.count(x) <= hi:
             p1 += 1
         if (pwd[lo-1] == x) ^ (pwd[hi-1] == x):
@@ -30,6 +35,9 @@ if __name__ == '__main__':
 
 
 '''
+%timeit get_input(path)
+262 ns ± 0.417 ns per loop (mean ± std. dev. of 7 runs, 1000000 loops each)
+
 %timeit Day02(path)
 1.55 ms ± 2.46 µs per loop (mean ± std. dev. of 7 runs, 1000 loops each)
 '''
