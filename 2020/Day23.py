@@ -1,7 +1,8 @@
 from helper import aoc_timer
 
 
-def get_cups(data, mod):
+@aoc_timer
+def get_input(data, mod):
     cups = [None] * ((mx := len(data)) + 1)
     last = int(data[-1])
     for idx, cup in enumerate(data, start=1):
@@ -35,7 +36,7 @@ def p1(cups, cup=1, mod=9):
 
 @aoc_timer
 def Day23(data, mod=9, moves=100, part1=True):
-    cups = get_cups(data, mod)
+    cups = get_input(data, mod)
     cup = int(data[0])
     for m in range(moves):
         p, q, ncup, a, b = turn(cup, cups, mod)
