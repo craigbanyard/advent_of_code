@@ -8,7 +8,7 @@ def get_input(data, mod):
     for idx, cup in enumerate(data, start=1):
         cups[int(cup)] = int(data[idx % mx])
     if mod > mx:
-        cups[last] = (mx := mx + 1)    
+        cups[last] = (mx := mx + 1)
         cups += list(range(mx + 1, mod + 1)) + [int(data[0])]
     return cups
 
