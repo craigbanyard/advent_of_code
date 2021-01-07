@@ -58,7 +58,7 @@ def Day21(data, part1=True, p1_data=None):
 
 
 # %% Output
-def main():    
+def main():
     path = getcwd() + "\\Inputs\\Day21.txt"
     # path = getcwd() + "\\Inputs\\Samples\\Day21.txt"
     print("AoC 2020\nDay 21")
