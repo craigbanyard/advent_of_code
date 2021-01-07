@@ -23,8 +23,8 @@ def Day02(path):
 
 # %% Output
 def main():
-    path = getcwd() + "\\Inputs\\Day02.txt"
     print("AoC 2020\nDay 2")
+    path = getcwd() + "\\Inputs\\Day02.txt"
     p1, p2 = Day02(path)
     print("Part 1:", p1)
     print("Part 2:", p2)

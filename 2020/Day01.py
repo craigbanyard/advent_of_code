@@ -1,5 +1,6 @@
 from helper import aoc_timer
 from os import getcwd
+from itertools import combinations
 
 
 @aoc_timer
@@ -25,8 +26,8 @@ def Part2(data, target=2020):
 
 # %% Output
 def main():
-    path = getcwd() + "\\Inputs\\Day01.txt"
     print("AoC 2020\nDay 1")
+    path = getcwd() + "\\Inputs\\Day01.txt"
     data = get_input(path)
     print("Part 1:", Part1(data))
     print("Part 2:", Part2(data))
@@ -51,9 +52,6 @@ if __name__ == '__main__':
 
 
 # %% Other solutions
-from itertools import combinations
-
-
 @aoc_timer
 def get_input_list(path):
     return [int(x.strip()) for x in open(path).readlines()]
