@@ -51,6 +51,7 @@ def handshake(data, g, p):
 
 # %% Output
 def main():
+    print("AoC 2020\nDay 25")
     path = getcwd() + "\\Inputs\\Day25.txt"
     data = get_input(path)
     g, p = 7, 20201227
