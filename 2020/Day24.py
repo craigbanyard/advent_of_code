@@ -20,7 +20,7 @@ def get_input(path):
     D, IN = dirs(), set()
     for line in open(path).read().split('\n'):
         instr, idx, end = 0, 0, len(line)
-        while idx < end:        
+        while idx < end:
             if (d := line[idx]) in D:
                 idx += 1
             elif (d := line[idx:idx+2]) in D:
@@ -59,7 +59,6 @@ def main():
     data = get_input(path)
     print("Part 1:", Day24(data))
     print("Part 2:", Day24(data, False))
-
 
 
 if __name__ == '__main__':
