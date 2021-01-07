@@ -19,21 +19,21 @@ def find_paren(expr, inner=True, reverse=False):
             if ch == ')':
                 S.append(L - idx)
             elif ch == '(':
-                l = (L - idx, S.pop())
+                left = (L - idx, S.pop())
                 if inner:
-                    return l
+                    return left
                 if not S:
-                    return l
+                    return left
         return S
     for idx, ch in enumerate(expr):
         if ch == '(':
             S.append(idx)
         elif ch == ')':
-            l = (S.pop(), idx)
+            left = (S.pop(), idx)
             if inner:
-                return l
+                return left
             if not S:
-                return l
+                return left
     return S
 
 
