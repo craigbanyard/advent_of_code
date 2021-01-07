@@ -29,8 +29,8 @@ def flip(tile, axis=None, diag=None):
     # axis=1       horizontally
     # axis=None    diagonally twice = R2
     # Single diagonal flips (group theory):
-        # d0 = (r1 o f0) = flip along y = -x
-        # d1 = (r1 o f1) = flip along y = x
+    #     d0 = (r1 o f0) = flip along y = -x
+    #     d1 = (r1 o f1) = flip along y = x
     if diag:
         tile = rotate(tile, 1)
     return np.flip(tile, axis)
@@ -38,7 +38,7 @@ def flip(tile, axis=None, diag=None):
 
 def from_bin(arr):
     ans = 0
-    for n in arr: 
+    for n in arr:
         ans = (ans << 1) | n
     return ans
 
@@ -52,16 +52,16 @@ def extract_bin(tile, edge):
     ''' ''' '''
     E = {
         0: lambda a: a[0],
-        1: lambda a: a[:,-1],
+        1: lambda a: a[:, -1],
         2: lambda a: a[-1],
-        3: lambda a: a[:,0]
+        3: lambda a: a[:, 0]
         }
     bw = flip(fw := E[edge](tile))
     return list(map(from_bin, (fw, bw)))
 
 
 def crop(tile, n=1):
-    return tile[n:-n,n:-n]
+    return tile[n:-n, n:-n]
 
 
 def translate(tile, op):
@@ -138,21 +138,20 @@ def Day20(data, part1=True, p1_data=None):
         p1 = 1
         for tile, n in N.items():
             if n == 2:
-              p1 *= tile
+                p1 *= tile
 
         return p1, (G, M, N)
 
     # Part 2
     G, M, N = p1_data
 
-    # BEWARE THE TABBED DOCSTRING!!!
-    monster = '''
-                  # 
-#    ##    ##    ###
- #  #  #  #  #  #   
-'''
+    # Monster pattern to find
+    mnstr = get_grid([
+        '                  # ',
+        '#    ##    ##    ###',
+        ' #  #  #  #  #  #   '
+        ]).nonzero()
 
-    mnstr = get_grid(monster.lstrip('\n').splitlines()).nonzero()
     # Centre sea monster tail on (0, 0)
     mrows = mnstr[0] - 1
     mcols = mnstr[1]
@@ -216,7 +215,7 @@ def Day20(data, part1=True, p1_data=None):
         op = trans[bw ^ mbw][direc][medge]
         image[scale_idx(nidx, tlen, imlen)] = translate(G[mtile], op)
         for nedge in tuple(sorted(n for (m, n), (_, _, _) in M.items()
-                                  if m == mtile and n != medge)):       
+                                  if m == mtile and n != medge)):
             ndirec, mbw = trans_edge(nedge, op)
             Q.append((mtile, nedge, ndirec, mbw, nidx))
 
@@ -234,10 +233,10 @@ def Day20(data, part1=True, p1_data=None):
                 else:
                     break
             if cnt == len(NESSY):
-                SM.add((r,c))
+                SM.add((r, c))
         if len(SM) > 0:
             return len(ONES) - len(SM) * len(NESSY)
-    
+
     # If we get to this point, there's been a monumental fuck up
     return False
 
