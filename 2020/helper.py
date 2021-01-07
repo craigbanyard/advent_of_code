@@ -1,7 +1,9 @@
 from time import perf_counter
+import functools
 
 
 def aoc_timer(func):
+    @functools.wraps(func)
     def timer(*args, **kw):
         t0 = perf_counter()
         result = func(*args, **kw)
@@ -20,5 +22,5 @@ def main():
     pass
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     main()
