@@ -29,7 +29,7 @@ def aoc_timer(func=None, *, repeat=1, metric=min, **margs):
 
     def mean_std(times):
         m, s = np.mean(times), np.std(times)
-        return f"{format_time(m)} \u00B1 {format_time(s)}"
+        return f"{format_time(m)} ± {format_time(s)}"
 
     # Handle invalid metrics
     def err(times, metric=metric):
