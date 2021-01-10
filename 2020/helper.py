@@ -1,4 +1,4 @@
-from time import perf_counter
+from time import perf_counter_ns
 from functools import wraps, partial
 import numpy as np
 import math
@@ -16,16 +16,16 @@ def aoc_timer(func=None, *, repeat=1, metric=min, **margs):
       Expected built-ins: {min, max, list, sorted}
       Expected custom: {'mean', 'mean_std', 'std', 'var', ... any numpy array method}
       https://numpy.org/doc/stable/reference/routines.statistics.html
-      Keyword arguments of metric must be specified (**margs).
+      Keyword arguments of metric must be specified as **margs.
     """
 
     def format_time(t):
-        units = ['ms', 'μs', 'ns']
-        if t == 0 or t >= 1:
-            return f"{float(t):.4} s"
-        zeros = math.ceil(abs(math.log10(t))) - 1
-        idx = min(len(units) - 1, zeros // 3)
-        return f"{t * 10**(3*(idx+1)):.4} {units[idx]}"
+        units = ['ns', 'μs', 'ms', 's']
+        if t < 1:
+            return f"{float(t):.4} ns"
+        digits = math.floor(math.log10(t))
+        idx = min(len(units) - 1, digits // 3)
+        return f"{float(t / 10**(3*idx)):.4} {units[idx]}"
 
     def mean_std(times):
         m, s = np.mean(times), np.std(times)
@@ -54,24 +54,29 @@ def aoc_timer(func=None, *, repeat=1, metric=min, **margs):
     def wrapper_timer(*args, **kwargs):
         if kwargs.get("time") is False:
             return func(*args, **kwargs)
+
         for t in range(repeat):
-            t0 = perf_counter()
+            t0 = perf_counter_ns()
             result = func(*args, **kwargs)
-            t1 = perf_counter() - t0
+            t1 = perf_counter_ns() - t0
             times[t] = t1
+
         if 'get_input' in func.__name__:
             label = 'Data'
         else:
             label = 'Time'
-        # Check if disp is iterable before attempting to convert units
+
         disp = metric(times, **margs)
+        # Check if disp is iterable before attempting to format time
         try:
             _ = iter(disp)
         except TypeError:
             # Not iterable => format time
             disp = format_time(disp)
+
         print(f"-----\n{label}: {disp}")
         return result
+
     return wrapper_timer
 
 
