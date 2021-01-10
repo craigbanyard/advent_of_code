@@ -1,4 +1,4 @@
-from time import time
+from helper import aoc_timer
 from collections import deque
 from os import getcwd
 import numpy as np
@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 
+@aoc_timer
 def get_input(path):
     return [x.strip() for x in open(path).readlines()]
 
@@ -60,6 +61,7 @@ def plt_ani(fig, ims, save, part, con, fr):
     return
 
 
+@aoc_timer
 def Day11(data, part=1, con=3, ani=False, save=False):
     # Process seats (S) and adjacency (A)
     R, C = len(data), len(data[0])
@@ -69,9 +71,10 @@ def Day11(data, part=1, con=3, ani=False, save=False):
             if data[r][c] == 'L':
                 tmp = []
                 Q = deque([])
-                [Q.append([(dr, dc)]) for dr in (-1, 0, 1)
-                                      for dc in (-1, 0, 1)
-                                      if not (dr == dc == 0)]
+                [Q.append([(dr, dc)])
+                 for dr in (-1, 0, 1)
+                 for dc in (-1, 0, 1)
+                 if not (dr == dc == 0)]
                 while Q:
                     [(dr, dc)] = Q.popleft()
                     if r + dr in (-1, R) or c + dc in (-1, C):
@@ -104,10 +107,9 @@ def Day11(data, part=1, con=3, ani=False, save=False):
             tot = 0
             for nei in A[seat]:
                 tot += S[nei]
-            if occ == 0:
-                if tot == 0:
-                    N[seat] = 1
-            elif tot > con:
+            if not occ and not tot:
+                N[seat] = 1
+            elif occ and tot > con:
                 N[seat] = 0
         if S == N:
             # Equilibrium reached: animate and return
@@ -120,20 +122,14 @@ def Day11(data, part=1, con=3, ani=False, save=False):
 
 # %% Output
 def main():
+    print("AoC 2020\nDay 11")
     path = getcwd() + "\\Inputs\\Day11.txt"
     # path = getcwd() + "\\Inputs\\Samples\\Day11.txt"
-    print("AoC 2020\nDay 11\n-----")
-    t0 = time()
     data = get_input(path)
-    print("Data:", time() - t0, "\n-----")
-    t0 = time()
     print("Part 1:", Day11(data))
     # print("Part 1:", Day11(data, part=1, con=3, ani='PLT', save=True))
-    print("Time:", time() - t0, '\n-----')
-    t0 = time()
     print("Part 2:", Day11(data, part=2, con=4))
     # print("Part 2:", Day11(data, part=2, con=4, ani='PLT', save=True))
-    print("Time:", time() - t0)
 
 
 if __name__ == '__main__':
