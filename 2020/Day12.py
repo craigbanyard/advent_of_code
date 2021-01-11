@@ -1,9 +1,10 @@
-from time import time
+from helper import aoc_timer
 from os import getcwd
 
 
+@aoc_timer
 def get_input(path):
-    return [(y[0], int(y[1:])) for y in [x.strip() for x in open(path).readlines()]]
+    return [(x[0], int(x[1:])) for x in open(path).read().split('\n')]
 
 
 def rotate(c, d, u):
@@ -12,13 +13,14 @@ def rotate(c, d, u):
     return clock[(clock.index(c) + turn[d]) % 4]
 
 
-def Day12(data, part=1):
+@aoc_timer
+def Day12(data, part1=True):
 
-    # Dictionaries relevant for both parts
+    # Relevant for both parts:
     rots = {'L', 'R'}
     dirs = {k: 0 for k in 'NSEW'}
 
-    def part1():
+    if part1:
         curr = 'E'
         for head, unit in data:
             if head in rots:
@@ -28,9 +30,7 @@ def Day12(data, part=1):
                 dirs[curr] += unit
                 continue
             dirs[head] += unit
-        return abs(dirs['N'] - dirs['S']) + abs(dirs['W'] - dirs['E'])
-
-    def part2():
+    else:
         wayp = {'N': 1, 'S': 0, 'E': 10, 'W': 0}
         for head, unit in data:
             if head in rots:
@@ -44,27 +44,19 @@ def Day12(data, part=1):
                     dirs[h] += unit * wayp[h]
                 continue
             wayp[head] += unit
-        return abs(dirs['N'] - dirs['S']) + abs(dirs['W'] - dirs['E'])
 
-    if part == 2:
-        return part2()
-    return part1()
+    # Both parts have same return calculation
+    return abs(dirs['N'] - dirs['S']) + abs(dirs['W'] - dirs['E'])
 
 
 # %% Output
 def main():
+    print("AoC 2020\nDay 12")
     path = getcwd() + "\\Inputs\\Day12.txt"
     # path = getcwd() + "\\Inputs\\Samples\\Day12.txt"
-    print("AoC 2020\nDay 12\n-----")
-    t0 = time()
     data = get_input(path)
-    print("Data:", time() - t0, "\n-----")
-    t0 = time()
     print("Part 1:", Day12(data))
-    print("Time:", time() - t0, '\n-----')
-    t0 = time()
-    print("Part 2:", Day12(data, part=2))
-    print("Time:", time() - t0)
+    print("Part 2:", Day12(data, False))
 
 
 if __name__ == '__main__':
@@ -73,11 +65,11 @@ if __name__ == '__main__':
 
 '''
 %timeit get_input(path)
-555 µs ± 3 µs per loop (mean ± std. dev. of 7 runs, 1000 loops each)
+389 µs ± 377 ns per loop (mean ± std. dev. of 7 runs, 1000 loops each)
 
 %timeit Day12(data)
 217 µs ± 675 ns per loop (mean ± std. dev. of 7 runs, 1000 loops each)
 
-%timeit Day12(data,2)
+%timeit Day12(data, False)
 864 µs ± 2.84 µs per loop (mean ± std. dev. of 7 runs, 1000 loops each)
 '''
