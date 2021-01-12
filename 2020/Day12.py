@@ -4,57 +4,44 @@ from os import getcwd
 
 @aoc_timer
 def get_input(path):
-    return [(x[0], int(x[1:])) for x in open(path).read().split('\n')]
+    C = {'N': 1j, 'E': 1, 'S': -1j, 'W': -1}
+    R = {
+        'L': lambda x: x//90,
+        'R': lambda x: -(x//90) % 4
+        }
+    for line in open(path).read().split('\n'):
+        head, unit = line[0], int(line[1:])
+        if head in C:
+            yield (None, unit * C[head])
+        elif head in R:
+            yield (True, 1j ** R[head](unit))
+        else:
+            yield (False, unit)
 
 
-def rotate(c, d, u):
-    clock = ['N', 'E', 'S', 'W']
-    turn = {'L': -u//90, 'R': u//90}
-    return clock[(clock.index(c) + turn[d]) % 4]
-
-
-def rotate_w(w, d, u):
-    # Reduce to (x, y) = (E, N)
-    w['N'] -= w['S']
-    w['E'] -= w['W']
-    w['S'] = w['W'] = 0
-    turn = {'L': -u//90, 'R': u//90}
-    for _ in range(turn[d] % 4):
-        w['E'], w['N'] = w['N'], -w['E']
-    return w
+def manhattan(c):
+    return int(abs(c.real) + abs(c.imag))
 
 
 @aoc_timer
-def Day12(data, part1=True):
-
-    # Relevant for both parts:
-    rots = {'L', 'R'}
-    dirs = {k: 0 for k in 'NESW'}
-
-    if part1:
-        curr = 'E'
-        for head, unit in data:
-            if head in rots:
-                curr = rotate(curr, head, unit)
-                continue
-            if head == 'F':
-                dirs[curr] += unit
-                continue
-            dirs[head] += unit
-    else:
-        wayp = {'N': 1, 'E': 10, 'S': 0, 'W': 0}
-        for head, unit in data:
-            if head in rots:
-                wayp = rotate_w(wayp, head, unit)
-                continue
-            if head == 'F':
-                for h in wayp:
-                    dirs[h] += unit * wayp[h]
-                continue
-            wayp[head] += unit
-
-    # Both parts have same return calculation
-    return abs(dirs['N'] - dirs['S']) + abs(dirs['W'] - dirs['E'])
+def Day12(path):
+    # Starting position of ship and waypoint
+    p1, w1 = 0, 1+0j
+    p2, w2 = 0, 10+1j
+    for head, unit in get_input(path):
+        if head is None:
+            # Move in a direction
+            p1 += unit
+            w2 += unit
+        elif head:
+            # Rotation
+            w1 *= unit
+            w2 *= unit
+        else:
+            # Move forwards
+            p1 += w1 * unit
+            p2 += w2 * unit
+    return manhattan(p1), manhattan(p2)
 
 
 # %% Output
@@ -62,9 +49,9 @@ def main():
     print("AoC 2020\nDay 12")
     path = getcwd() + "\\Inputs\\Day12.txt"
     # path = getcwd() + "\\Inputs\\Samples\\Day12.txt"
-    data = get_input(path)
-    print("Part 1:", Day12(data))
-    print("Part 2:", Day12(data, False))
+    p1, p2 = Day12(path)
+    print("Part 1:", p1)
+    print("Part 2:", p2)
 
 
 if __name__ == '__main__':
@@ -73,11 +60,8 @@ if __name__ == '__main__':
 
 '''
 %timeit get_input(path)
-389 µs ± 377 ns per loop (mean ± std. dev. of 7 runs, 1000 loops each)
+283 ns ± 1.18 ns per loop (mean ± std. dev. of 7 runs, 1000000 loops each)
 
-%timeit Day12(data)
-217 µs ± 675 ns per loop (mean ± std. dev. of 7 runs, 1000 loops each)
-
-%timeit Day12(data, False)
-567 µs ± 1.18 µs per loop (mean ± std. dev. of 7 runs, 1000 loops each)
+%timeit Day12(path)
+777 µs ± 1.31 µs per loop (mean ± std. dev. of 7 runs, 1000 loops each)
 '''
