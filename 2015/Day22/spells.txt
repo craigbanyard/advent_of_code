@@ -1,6 +1,6 @@
 Spell, Cost, Damage, Heal, Duration, DoT, AoT, MoT
-Magic Missile, 53, 4, 0, 1, 0, 0, 0
-Drain, 73, 2, 2, 1, 0, 0, 0
+Magic Missile, 53, 4, 0, 0, 0, 0, 0
+Drain, 73, 2, 2, 0, 0, 0, 0
 Shield, 113, 0, 0, 6, 0, 7, 0
 Poison, 173, 0, 0, 6, 3, 0, 0
 Recharge, 229, 0, 0, 5, 0, 0, 101
