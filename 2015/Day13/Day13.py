@@ -71,7 +71,7 @@ def Day13(h, part1=True):
 
 # %% Output
 def main():
-    print("AoC 2015\nDay 15")
+    print("AoC 2015\nDay 13")
     data = get_input('input.txt')
     print("Part 1:", Day13(data))
     print("Part 2:", Day13(data, part1=False))

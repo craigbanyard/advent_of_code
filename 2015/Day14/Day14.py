@@ -40,7 +40,7 @@ def Day14(data, part1=True):
     # Part 2
     P = {}
     for t in range(2503):
-        for r, p in get_pos(data, t+1):
+        for r, _ in get_pos(data, t + 1):
             if r not in P:
                 P[r] = 1
                 continue
@@ -51,7 +51,7 @@ def Day14(data, part1=True):
 
 # %% Output
 def main():
-    print("AoC 2015\nDay 15")
+    print("AoC 2015\nDay 14")
     data = get_input('input.txt')
     print("Part 1:", Day14(data))
     print("Part 2:", Day14(data, part1=False))
