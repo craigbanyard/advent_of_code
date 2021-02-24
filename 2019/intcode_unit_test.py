@@ -13,17 +13,17 @@ path = os.getcwd()
 # %% Day 02
 def Day02(program_file, part1=True, target=None):
     if part1:
-        C = IntcodeComputer(program_file)
-        C.override({1: 12, 2: 2})
-        C.run()
-        return C.P[0]
+        VM = IntcodeComputer(program_file)
+        VM.override({1: 12, 2: 2})
+        VM.run()
+        return VM.P[0]
 
     for noun in range(100):
         for verb in range(100):
-            C = IntcodeComputer(program_file)
-            C.override({1: noun, 2: verb})
-            C.run()
-            if C.P[0] == target:
+            VM = IntcodeComputer(program_file)
+            VM.override({1: noun, 2: verb})
+            VM.run()
+            if VM.P[0] == target:
                 return (100 * noun) + verb
 
 
@@ -36,9 +36,9 @@ def unit02():
 
 # %% Day 05
 def Day05(program_file, input):
-    C = IntcodeComputer(program_file, input)
-    while not C.halted:
-        result = C.run()
+    VM = IntcodeComputer(program_file, input)
+    while not VM.halted:
+        result = VM.run()
         if result is not None:
             diagnostic_code = result
     return diagnostic_code
@@ -92,8 +92,8 @@ def unit07():
 
 # %% Day 09
 def Day09(program_file, input):
-    C = IntcodeComputer(program_file, input)
-    return C.run()
+    VM = IntcodeComputer(program_file, input)
+    return VM.run()
 
 
 def unit09():
@@ -118,7 +118,7 @@ def Day11(program_file, grid_init, part1=True, asc=False, mpl=False):
     painted = set()
 
     # Initialise Intcode computer
-    P = IntcodeComputer(program_file, input=get_input)
+    VM = IntcodeComputer(program_file, input=get_input)
 
     if part1:
         # Start robot in centre of grid
@@ -130,12 +130,12 @@ def Day11(program_file, grid_init, part1=True, asc=False, mpl=False):
 
     # Carry on receiving output from program until it halts
     while True:
-        colour = P.run()
+        colour = VM.run()
         if colour is None:
             break
         G[r][c] = colour
         painted.add((r, c))
-        turn = P.run()
+        turn = VM.run()
         if turn == 0:
             d = (d + 1) % 4
         else:
