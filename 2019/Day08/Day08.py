@@ -36,11 +36,11 @@ def Day08(data, part1=True, plot_ascii=True):
                 if img[layer, r, c] != 2:
                     final_img[r, c] = img[layer, r, c]
                     if final_img[r, c] == 0:
-                        msg += ' '
+                        msg += " "
                     else:
-                        msg += '#'
+                        msg += "#"
                     break
-        msg += '\n'
+        msg += "\n"
 
     if plot_ascii:
         return msg
