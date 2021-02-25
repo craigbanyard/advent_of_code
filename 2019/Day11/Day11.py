@@ -15,7 +15,7 @@ def Day11(program_file, grid_init, part1=True, asc=False, mpl=False):
     R, C = grid_init
     G = [[0 for _ in range(C)] for _ in range(R)]
     d = 0
-    dR, dC = [-1, 0, 1, 0], [0, -1, 0, 1]
+    dr, dc = [-1, 0, 1, 0], [0, -1, 0, 1]
     painted = set()
 
     # Initialise Intcode computer
@@ -41,8 +41,8 @@ def Day11(program_file, grid_init, part1=True, asc=False, mpl=False):
             d = (d + 1) % 4
         else:
             d = (d + 3) % 4
-        r += dR[d]
-        c += dC[d]
+        r += dr[d]
+        c += dc[d]
 
     if mpl:
         # Matplotlib plot
