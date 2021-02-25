@@ -72,7 +72,7 @@ def Day11(program_file, grid_init, part1=True, asc=False, mpl=False):
 
 # %% Output
 def main():
-    print("AoC 2019\nDay 09")
+    print("AoC 2019\nDay 11")
     program_file = 'input.txt'
     print("Part 1:", Day11(program_file, (120, 120), part1=True, asc=False, mpl=False))
     print("Part 2:", Day11(program_file, (8, 45), part1=False, asc=True, mpl=False))
