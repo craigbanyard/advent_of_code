@@ -61,7 +61,7 @@ def Day17(program_file, part1=True, debug=False, plot=None):
                     intersections.add((r, c))
         return intersections
 
-    def plot_scaffolds(scaffolds, intersections=None, vis_intersections=3):
+    def plot_scaffolds(scaffolds, intersections=None):
         """Matplotlib plot of scaffolds from string representation."""
         G = scaffold_grid(scaffolds)
         colours = [
@@ -70,12 +70,15 @@ def Day17(program_file, part1=True, debug=False, plot=None):
             'dodgerblue',          # Robot
         ]
         if intersections is not None:
+            # Append intersection colour to colour map
             colours.append('lightsteelblue')
+            intersection = max(MAP.values()) + 1
+            # Amend intersection values
             for r, c in intersections:
-                G[r][c] = vis_intersections
+                G[r][c] = intersection
+        # Show plot
         plt.figure(figsize=(8, 8))
-        cmap = ListedColormap(colours)
-        plt.imshow(G, cmap=cmap)
+        plt.imshow(G, cmap=ListedColormap(colours))
         plt.axis('off')
         return None
 
@@ -101,7 +104,7 @@ def Day17(program_file, part1=True, debug=False, plot=None):
         intersections = get_intersections(scaffolds)
         # Plot
         if plot:
-            plot_scaffolds(scaffolds, intersections, 3)
+            plot_scaffolds(scaffolds, intersections)
         return sum(r * c for r, c in intersections)
     return out
 
