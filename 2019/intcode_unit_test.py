@@ -1,9 +1,10 @@
 # %% Imports
 from helper import aoc_timer
 from intcode import IntcodeComputer
-from itertools import permutations
+import itertools
 from collections import deque
 from matplotlib import pyplot as plt
+from matplotlib.colors import ListedColormap
 import numpy as np
 import os
 
@@ -61,7 +62,7 @@ def Day07(program_file, phase):
         return 0
 
     max_signal = 0
-    for p in permutations(list(phase)):
+    for p in itertools.permutations(list(phase)):
         amps = []
         Q = []
         first_pass = True
@@ -234,6 +235,268 @@ def unit13():
     return p1, p2
 
 
+# %% Day 15
+def Day15(program_file, grid_init, part1=True, plot=None):
+
+    # Constants
+    WALL = 0
+    TRAVERSED = 1
+    OXYGEN = 2
+    DROID = 3
+    UNEXPLORED = 4
+    CLOCKWISE = {
+        1: 4,
+        2: 3,
+        3: 1,
+        4: 2
+    }
+    ANTICLOCKWISE = {v: k for k, v in CLOCKWISE.items()}
+    DR, DC = [None, -1, 1, 0, 0], [None, 0, 0, -1, 1]
+
+    def get_command(movement_command, status_code):
+        """Determine next input command, N (1), S (2), W (3), E (4)."""
+        if movement_command is None:
+            return 1
+        if status_code == WALL:
+            return ANTICLOCKWISE[movement_command]
+        if status_code == TRAVERSED:
+            return CLOCKWISE[movement_command]
+        else:
+            assert status_code == OXYGEN
+            return 1
+
+    def get_input():
+        """Function used as input to Intcode VM."""
+        return movement_command
+
+    def draw_grid(G, style='ascii'):
+        """
+        Draw a representation of G in a given style.
+
+        Arguments:
+          G -- grid to draw
+          style -- method of visualisation, two accepted string values:
+            'ascii':  ASCII art
+            'mpl':    Matplotlib plot
+        """
+
+        # ASCII art mapping
+        ASCII = {
+            WALL: "#",
+            TRAVERSED: ".",
+            OXYGEN: "O",
+            DROID: "D",
+            UNEXPLORED: " "
+        }
+
+        # Draw ASCII art
+        if style.lower() == 'ascii':
+            grid = "\n"
+            for r in G:
+                for c in r:
+                    grid += ASCII[c]
+                grid += "\n"
+            print(grid)
+            return None
+
+        # Matplotlib plot
+        assert style.lower() == 'mpl', f"Invalid plot style: {style}"
+        plt.figure(figsize=(8, 8))
+        cmap = ListedColormap([
+            'xkcd:dark indigo',        # Walls
+            'white',                   # Traversed
+            'crimson',                 # Oxygen
+            'xkcd:azure',              # Droid
+            'black'                    # Unexplored
+        ])
+        plt.imshow(G, cmap=cmap)
+        plt.axis('off')
+        return None
+
+    # Initialise grid
+    R, C = grid_init
+    r = r0 = R // 2 + 1
+    c = c0 = (C // 2) + 1
+    G = [[UNEXPLORED for _ in range(C)] for _ in range(R)]
+    G[r][c] = DROID
+    movement_command = None
+    status_code = None
+    commands = 0
+    visited = {(r0, c0): commands}
+    # Part 2
+    longest = 0
+    oxygen_found = False
+    oxygen_path = {}
+
+    # Initialise Intcode program
+    VM = IntcodeComputer(program_file, input=get_input)
+
+    while not VM.halted:
+        movement_command = get_command(movement_command, status_code)
+        dr, dc = DR[movement_command], DC[movement_command]
+        status_code = VM.run()
+        # Process output
+        if status_code == WALL:
+            # Hit a wall, droid cannot move in given direction
+            G[r + dr][c + dc] = WALL
+            continue
+        # Droid successfully moved in the given direction
+        if G[r][c] != OXYGEN:
+            G[r][c] = TRAVERSED
+        r += dr
+        c += dc
+        # Update visited
+        if (r, c) not in visited:
+            commands += 1
+            visited[(r, c)] = commands
+        else:
+            # Backtracking after hitting dead-end
+            commands -= 1
+        # Update oxygen path
+        if oxygen_found and (r, c) not in oxygen_path:
+            longest += 1
+            oxygen_path[(r, c)] = longest
+        elif oxygen_found:
+            longest -= 1
+        # Successful movement status codes
+        if status_code == OXYGEN:
+            G[r][c] = OXYGEN
+            if part1:
+                if plot:
+                    G[r0][c0] = DROID
+                    draw_grid(G, style=plot)
+                return commands
+            oxygen_found = True
+        else:
+            assert status_code == TRAVERSED
+            G[r][c] = DROID
+        # Halt if we're back at the starting position
+        if (r, c) == (r0, c0):
+            break
+
+    if plot:
+        draw_grid(G, style=plot)
+    return max(oxygen_path.values())
+
+
+def unit15():
+    program_file = path + '\\Day15\\input.txt'
+    grid_dimensions = (43, 43)
+    p1 = Day15(program_file, grid_dimensions)
+    p2 = Day15(program_file, grid_dimensions, part1=False)
+    return p1, p2
+
+
+# %% Day 17
+def Day17(program_file, part1=True, debug=False, plot=None):
+
+    def get_routine(path):
+        """
+        Return a generator for all integers in file at given path.
+        Routine generated via trial and error in Excel.
+
+        To auto-solve this, need to write a routing algorithm (e.g. BFS)
+        to traverse the scaffold, then a compression algorithm to compress
+        the path such that it meets the memory constraints.
+        """
+        for x in open(path).read().split(','):
+            yield int(x)
+
+    # Constants
+    MAP = {
+        '.': 0,
+        '#': 1,
+        '^': 2,
+        'v': 2,
+        '<': 2,
+        '>': 2
+    }
+    ROUTINE = get_routine(path + '\\Day17\\routine.txt')
+
+    def get_input():
+        """Function used as input to Intcode VM."""
+        out = next(ROUTINE)
+        if debug:
+            print(chr(out), end='', flush=True)
+        return out
+
+    def scaffold_grid(scaffolds):
+        """Convert scaffolds string into numeric grid."""
+        return [[MAP[ch] for ch in line]
+                for line in scaffolds.strip('\n').split('\n')]
+
+    def get_intersections(scaffolds):
+        """Return set of coordinates of all scaffold intersections."""
+        G = scaffold_grid(scaffolds)
+        R, C = len(G), len(G[0])
+        intersections = set()
+        dirs = [
+            (-1, 0),        # Up
+            (0, 1),         # Right
+            (1, 0),         # Down
+            (-1, 0)         # Left
+        ]
+        for r, c in itertools.product(range(1, R - 1), range(1, C - 1)):
+            if G[r][c] == MAP['#']:
+                if all(G[r + dr][c + dc] == MAP['#'] for (dr, dc) in dirs):
+                    intersections.add((r, c))
+        return intersections
+
+    def plot_scaffolds(scaffolds, intersections=None):
+        """Matplotlib plot of scaffolds from string representation."""
+        G = scaffold_grid(scaffolds)
+        colours = [
+            'white',               # Space
+            'midnightblue',        # Scaffold
+            'dodgerblue',          # Robot
+        ]
+        if intersections is not None:
+            # Append intersection colour to colour map
+            colours.append('lightsteelblue')
+            intersection = max(MAP.values()) + 1
+            # Amend intersection values
+            for r, c in intersections:
+                G[r][c] = intersection
+        # Show plot
+        plt.figure(figsize=(8, 8))
+        plt.imshow(G, cmap=ListedColormap(colours))
+        plt.axis('off')
+        return None
+
+    # Initialise Intcode program
+    VM = IntcodeComputer(program_file, input=get_input)
+    if not part1:
+        VM.override({0: 2})
+    scaffolds = debug_out = "\n"
+
+    while not VM.halted:
+        out = VM.run()
+        if out not in range(128):
+            break
+        scaffolds += chr(out)
+        # Full debug output
+        if debug:
+            debug_out += chr(out)
+            if out == 10:
+                print(debug_out, end='')
+                debug_out = ""
+
+    if part1:
+        intersections = get_intersections(scaffolds)
+        # Plot
+        if plot:
+            plot_scaffolds(scaffolds, intersections)
+        return sum(r * c for r, c in intersections)
+    return out
+
+
+def unit17():
+    program_file = path + '\\Day17\\input.txt'
+    p1 = Day17(program_file)
+    p2 = Day17(program_file, part1=False)
+    return p1, p2
+
+
 # %% Unit tests
 
 day11_2_exp = '\n' + \
@@ -269,7 +532,9 @@ results = {
     7: unit07(),
     9: unit09(),
     11: unit11(),
-    13: unit13()
+    13: unit13(),
+    15: unit15(),
+    17: unit17()
 }
 
 # Display unit test results
