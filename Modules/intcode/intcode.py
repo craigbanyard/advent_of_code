@@ -11,6 +11,7 @@ class IntcodeComputer:
             for i, x in enumerate(f.read().split(',')):
                 self.P[i] = int(x)
         # Additional properties
+        self._P = self.P.copy()
         self.input = input
         self.ip = 0
         self.rel_base = 0
@@ -22,6 +23,13 @@ class IntcodeComputer:
         """Override one or many indices of the Intcode program according to dict."""
         for idx, val in overrides.items():
             self.P[idx] = val
+    
+    def reset(self):
+        """Reset the Intcode VM to initial state."""
+        self.P = self._P.copy()
+        self.ip = 0
+        self.rel_base = 0
+        self.halted = False
 
     def read(self, i, m):
         """Get value from the current read instruction."""
