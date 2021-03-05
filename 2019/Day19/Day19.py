@@ -3,6 +3,7 @@ from intcode import IntcodeComputer
 from collections import deque
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 
 
 @aoc_timer
@@ -11,6 +12,11 @@ def Day19(program_file, part2=False, plot=False, mpl=True):
     # Constants
     P1_SEARCH = 50
     SHIP_SIZE = 99
+    MAP = {
+        '.': 0,
+        '#': 1,
+        'O': 2
+    }
 
     def get_input():
         """Used as input function to Intcode VM."""
@@ -23,12 +29,28 @@ def Day19(program_file, part2=False, plot=False, mpl=True):
         VM.reset()
         return VM.run()
 
+    def map_grid(G):
+        """Convert string array to integer array for plotting."""
+        if G.dtype == '<U1':
+            for k, v in MAP.items():
+                G = np.where(G == k, v, G)
+        return G.astype(int)
+
     def draw_beam(plot, mpl, G):
         """Draw tractor beam in given style."""
         if plot:
             if mpl:
-                plt.figure(figsize=(8, 8))
-                plt.imshow(G.view(int), cmap='gray')
+                fsize = 8
+                colours = [
+                    'black',
+                    'lightsteelblue'
+                ]
+                if part2:
+                    fsize = 50
+                    colours.append('cornflowerblue')
+                G = map_grid(G)
+                plt.figure(figsize=(fsize, fsize))
+                plt.imshow(G, cmap=ListedColormap(colours))
                 plt.axis('off')
             else:
                 for line in G:
@@ -42,7 +64,7 @@ def Day19(program_file, part2=False, plot=False, mpl=True):
     if part2:
         X += SHIP_SIZE * 12    # Should be large enough
         Y += SHIP_SIZE * 12
-        Y0 += 2 * SHIP_SIZE    # Ship has to be at least this far
+        Y0 += 2 * SHIP_SIZE    # Ship has to be at least this far away
 
     Q = deque()
     affected = 0
@@ -61,12 +83,10 @@ def Day19(program_file, part2=False, plot=False, mpl=True):
                 G[y][x] = "#"
             elif found:
                 # Rest of row won't be affected
-                G[y][x] = "."
                 break
             else:
                 # Keep searching
                 X0 = 0
-                G[y][x] = "."
 
             # Check if ship can fit for part 2
             if found and part2:
@@ -78,8 +98,9 @@ def Day19(program_file, part2=False, plot=False, mpl=True):
                     break
                 # Up
                 if tractor(x, y - SHIP_SIZE):
-                    G[(y - SHIP_SIZE):y][x:(x + SHIP_SIZE)] = "O"
-                    G = G[:(y + 5)][:(x + 5)]
+                    # Place ship in grid then crop image and draw
+                    G[(y - SHIP_SIZE):(y + 1), x:(x + SHIP_SIZE + 1)] = "O"
+                    G = G[:(y + 25), :(x + SHIP_SIZE + 25)]
                     draw_beam(plot, mpl, G)
                     return (x * 10000) + y - SHIP_SIZE
 
@@ -91,8 +112,9 @@ def Day19(program_file, part2=False, plot=False, mpl=True):
 def main():
     print("AoC 2019\nDay 19")
     program_file = 'input.txt'
-    print("Part 1:", Day19(program_file, plot=True, mpl=False))
-    print("Part 2:", Day19(program_file, part2=True))
+    print("Part 1:", Day19(program_file, plot=True, mpl=True))
+    print("Part 2:", Day19(program_file, part2=True, plot=False, mpl=False))
+    print()
 
 
 if __name__ == '__main__':

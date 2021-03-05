@@ -19,7 +19,7 @@ def get_routine(path):
 
 
 @aoc_timer
-def Day17(program_file, part1=True, debug=False, plot=None):
+def Day17(program_file, part1=True, debug=False, plot=None, routine_file=None):
 
     # Constants
     MAP = {
@@ -30,7 +30,10 @@ def Day17(program_file, part1=True, debug=False, plot=None):
         '<': 2,
         '>': 2
     }
-    ROUTINE = get_routine('routine.txt')
+    if routine_file is None:
+        ROUTINE = get_routine('routine.txt')
+    else:
+        ROUTINE = get_routine(routine_file)
 
     def get_input():
         """Function used as input to Intcode VM."""
