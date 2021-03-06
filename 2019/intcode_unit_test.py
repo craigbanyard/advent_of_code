@@ -10,6 +10,7 @@ from Day15.Day15 import Day15
 from Day17.Day17 import Day17
 from Day19.Day19 import Day19
 from Day21.Day21 import Day21
+from Day23.Day23 import Day23
 
 
 path = os.getcwd()
@@ -102,8 +103,17 @@ def unit19():
 def unit21():
     print("\nDay 21")
     program_file = path + '\\Day21\\input.txt'
-    p1 = Day21(program_file)
-    p2 = Day21(program_file, part1=False)
+    p1 = Day21(program_file, part=1)
+    p2 = Day21(program_file, part=2)
+    return p1, p2
+
+
+# %% Day 23
+def unit23():
+    print("\nDay 23")
+    program_file = path + '\\Day23\\input.txt'
+    p1 = Day23(program_file)
+    p2 = Day23(program_file, part1=False)
     return p1, p2
 
 
@@ -146,7 +156,8 @@ results = {
     15: unit15(),
     17: unit17(),
     19: unit19(),
-    21: unit21()
+    21: unit21(),
+    23: unit23()
 }
 
 # Display unit test results

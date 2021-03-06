@@ -4,7 +4,7 @@ from collections import defaultdict
 class IntcodeComputer:
     """Intcode virtual machine class."""
 
-    def __init__(self, program_file, input=None, program_id=None, timeout=None):
+    def __init__(self, program_file, input=None, program_id=None):
         # Load Intcode program
         self.P = defaultdict(int)
         with open(program_file) as f:
@@ -16,14 +16,13 @@ class IntcodeComputer:
         self.ip = 0
         self.rel_base = 0
         self.program_id = program_id
-        self.timeout = None
         self.halted = False
 
     def override(self, overrides):
         """Override one or many indices of the Intcode program according to dict."""
         for idx, val in overrides.items():
             self.P[idx] = val
-    
+
     def reset(self):
         """Reset the Intcode VM to initial state."""
         self.P = self._P.copy()
@@ -62,9 +61,10 @@ class IntcodeComputer:
             # Invalid parameter mode (write cannot be in immediate)
             assert False, mode
 
-    def run(self):
+    def run(self, timeout=None):
         """Run the program."""
-        while not self.halted:
+        t = 0
+        while not self.halted and (timeout is None or t < timeout):
             cmd = str(self.P[self.ip])
             opcode = int(cmd[-2:])
             m = list(reversed([int(x) for x in cmd[:-2]]))
@@ -110,3 +110,5 @@ class IntcodeComputer:
                 assert opcode == 99
                 # End of program
                 self.halted = True
+            t += 1
+        return None
