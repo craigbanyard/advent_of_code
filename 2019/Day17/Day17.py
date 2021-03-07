@@ -39,7 +39,7 @@ def Day17(program_file, part1=True, debug=False, plot=None, routine_file=None):
         """Function used as input to Intcode VM."""
         out = next(ROUTINE)
         if debug:
-            print(chr(out), end='', flush=True)
+            print(chr(out), end='')
         return out
 
     def scaffold_grid(scaffolds):

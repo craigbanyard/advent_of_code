@@ -1,0 +1,40 @@
+
+                                                                    ##################
+                                                                    # Hull Breach    #
+                                                                    #                #
+#####################################################################----------------#
+# Pressure-      | Security       | Observatory    | Hallway        | Engineering    #
+# Sensitive      | Checkpoint     |                |                |                #
+# Floor          | - space heater |                | - escape pod   | - infinite     #
+#                |                |                |                |   loop         #
+###################################----------------#----------------#----------------#
+                 # Sick Bay       # Holodeck       # Gift Wrapping  #                #
+                 #                #                # Center         #                #
+                 # - tambourine   #                # - antenna      #                #
+                 #                #                #                #                #
+                 #----------------###################################                #
+                 # Warp Drive     #                                 #                #
+                 # Maintenance    #                                 #                #
+                 # - molten lava  #                                 #                #
+                 #                #                                 #                #
+                 #----------------###################################----------------#
+                 # Science Lab    |                                 | Arcade         #
+                 #                |                                 |                #
+                 #                |                                 | - photons      #
+                 #                |                                 |                #
+                 ####################################################----------------#
+                                                   # Kitchen        | Crew Quarters  #
+                                                   #                |                #
+                                                   # - asterisk     | - fixed point  #
+                                                   #                |                #
+                                  ###################################----------------##################
+                                  # Corridor       | Navigation     | Passages       | Hot Chocolate  #
+                                  #                |                |                | Fountain       #
+                                  # - jam          |                | - festive hat  | - giant elec-  #
+                                  #                |                |                |   tromagnet    #
+     N                            #----------------####################################################
+     |                            # Stables        #
+ W --@-- E                        #                #
+     |                            # - easter egg   #
+     S                            #                #
+                                  ##################

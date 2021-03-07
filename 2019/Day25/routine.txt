@@ -1,0 +1,29 @@
+south
+south
+south
+take fixed point
+south
+west
+west
+south
+take easter egg
+north
+east
+east
+north
+north
+west
+north
+north
+take tambourine
+south
+south
+east
+north
+west
+west
+west
+take space heater
+west
+inv
+west
