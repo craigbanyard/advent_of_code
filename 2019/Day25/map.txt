@@ -5,17 +5,17 @@
 #####################################################################----------------#
 # Pressure-      | Security       | Observatory    | Hallway        | Engineering    #
 # Sensitive      | Checkpoint     |                |                |                #
-# Floor          | - space heater |                | - escape pod   | - infinite     #
+# Floor          | > space heater |                | > escape pod   | > infinite     #
 #                |                |                |                |   loop         #
 ###################################----------------#----------------#----------------#
                  # Sick Bay       # Holodeck       # Gift Wrapping  #                #
                  #                #                # Center         #                #
-                 # - tambourine   #                # - antenna      #                #
+                 # > tambourine   #                # > antenna      #                #
                  #                #                #                #                #
                  #----------------###################################                #
                  # Warp Drive     #                                 #                #
                  # Maintenance    #                                 #                #
-                 # - molten lava  #                                 #                #
+                 # > molten lava  #                                 #                #
                  #                #                                 #                #
                  #----------------###################################----------------#
                  # Science Lab    |                                 | Arcade         #
@@ -25,16 +25,16 @@
                  ####################################################----------------#
                                                    # Kitchen        | Crew Quarters  #
                                                    #                |                #
-                                                   # - asterisk     | - fixed point  #
+                                                   # > asterisk     | > fixed point  #
                                                    #                |                #
                                   ###################################----------------##################
                                   # Corridor       | Navigation     | Passages       | Hot Chocolate  #
                                   #                |                |                | Fountain       #
-                                  # - jam          |                | - festive hat  | - giant elec-  #
-                                  #                |                |                |   tromagnet    #
+                                  # > jam          |                | > festive hat  | > giant elect- #
+                                  #                |                |                |   romagnet     #
      N                            #----------------####################################################
      |                            # Stables        #
  W --@-- E                        #                #
-     |                            # - easter egg   #
+     |                            # > easter egg   #
      S                            #                #
                                   ##################

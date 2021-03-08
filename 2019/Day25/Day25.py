@@ -5,6 +5,18 @@ import sys
 import re
 
 
+class MapColours:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
 def get_routine(path):
     """
     Return a generator for all characters (as ASCII) in file at path.
@@ -44,6 +56,27 @@ def show_map(path):
     print("Command?")
 
 
+def colour_map(path, current_room):
+    """
+    Testing map colouring.  Currently works for rooms that don't
+    span multiple lines.
+    Could cheat - no word is used twice, could decorate individual words
+    """
+    base_map = open(path).read()
+    room_reg = r""
+    room_sep = r'[ \n#|]+'
+    for word in current_room.split():
+        room_reg += "(" + word + ")"
+        if current_room.endswith(word):
+            break
+        room_reg += room_sep
+    print(re.sub(
+        room_reg,
+        f"{MapColours.OKCYAN}{MapColours.BOLD}{current_room}{MapColours.ENDC}",
+        base_map
+    ))
+
+
 @aoc_timer
 def Day25(program_file, debug=True, routine_file=None, map_file='map.txt'):
 
@@ -79,6 +112,9 @@ def Day25(program_file, debug=True, routine_file=None, map_file='map.txt'):
         queue_auto(get_routine(routine_file))
 
     encounter = ""
+    # current_room = None
+    # room_search = r'== ([a-zA-Z -]+) =='
+    # room_sep = r'[ \n#|]+'
     VM = IntcodeComputer(program_file, input=get_input)
     while not VM.halted:
         out = VM.run()
@@ -86,7 +122,11 @@ def Day25(program_file, debug=True, routine_file=None, map_file='map.txt'):
             encounter += (out := chr(out))
             if debug:
                 print(out, end='')
+            # if out == '?':
+            #     map_search = ""
+            #     current_room = re.findall(room_search, encounter).pop()
     password = re.findall(r'\d+', encounter)[-1]
+    # rooms_visited = re.findall(room_search, encounter)
     return int(password)
 
 
