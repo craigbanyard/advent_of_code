@@ -5,16 +5,43 @@ import sys
 import re
 
 
-class MapColours:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
+class Colours:
+    """ANSI code class for terminal highlighting."""
+
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
+    class fg:
+        """Foreground colours."""
+
+        BLACK = '\033[30m'
+        RED = '\033[31m'
+        GREEN = '\033[32m'
+        ORANGE = '\033[33m'
+        BLUE = '\033[34m'
+        PURPLE = '\033[35m'
+        CYAN = '\033[36m'
+        LIGHTGREY = '\033[37m'
+        DARKGREY = '\033[90m'
+        LIGHTRED = '\033[91m'
+        LIGHTGREEN = '\033[92m'
+        YELLOW = '\033[93m'
+        LIGHTBLUE = '\033[94m'
+        PINK = '\033[95m'
+        LIGHTCYAN = '\033[96m'
+
+    class bg:
+        """Background colours."""
+
+        BLACK = '\033[40m'
+        RED = '\033[41m'
+        GREEN = '\033[42m'
+        ORANGE = '\033[43m'
+        BLUE = '\033[44m'
+        PURPLE = '\033[45m'
+        CYAN = '\033[46m'
+        LIGHTGREY = '\033[47m'
 
 
 def get_routine(path):
@@ -30,51 +57,46 @@ def get_routine(path):
         yield ord(x)
 
 
-def show_map(path):
+def highlight_word(word, base_map, colour=Colours.fg.BLUE, bold=True):
+    """Highlight a given word in base_map with given colour."""
+    word = r"" + word
+    repl = f"{colour}{word}{Colours.ENDC}"
+    if bold:
+        repl = f"{Colours.BOLD}{repl}"
+    return re.sub(word, repl, base_map)
+
+
+def show_map(path, current_room, colour=Colours.fg.BLUE, bold=True):
     """
-    Print the ASCII map in file at path.
-
-    Want to develop this to highlight the map to show current position.
-    Can also extend to highlight required/dangerous/decoy items.
-
-    RegEx for finding room from output:
-    r'== ([a-zA-Z -]+) =='
-    The matched group above (or last matched group if multiple rooms visited)
-    is the current room.
-
-    Can use this information to find the room in the map and highlight:
-    https://stackoverflow.com/questions/287871/how-to-print-colored-text-to-the-terminal
-
-    Difficulty comes from text spanning multiple lines in the map...
-    Possible RegEx:
-    r'(Gift)[ \n#|]+(Wrapping)[ \n#|]+(Center)'
-    e.g. split the result of the first RegEx giving ['Gift', 'Wrapping', 'Center'],
-    then construct above RegEx by joining this list with '[ \n#|]+' as separator.
-    """
-    for line in open(path).read().split("\n"):
-        print(line, flush=True)
-    print("Command?")
-
-
-def colour_map(path, current_room):
-    """
-    Testing map colouring.  Currently works for rooms that don't
-    span multiple lines.
-    Could cheat - no word is used twice, could decorate individual words
+    Print ASCII map saved in file at path.
+    Use RegEx and MapColours class to highlight currently occupied room.
+    Relies on the fact that no words are repeated in the map.
     """
     base_map = open(path).read()
     room_reg = r""
-    room_sep = r'[ \n#|]+'
+    room_sep = r'[ \n#|\w]+'
     for word in current_room.split():
-        room_reg += "(" + word + ")"
+        # Handle hyphenated line overspill
+        if '-' in word:
+            for w in word.split('-'):
+                if word.startswith(w + '-'):
+                    w += '-'
+                room_reg += f"({w})"
+                if current_room.endswith(w):
+                    break
+                room_reg += room_sep
+            continue
+        room_reg += f"({word})"
         if current_room.endswith(word):
             break
         room_reg += room_sep
-    print(re.sub(
-        room_reg,
-        f"{MapColours.OKCYAN}{MapColours.BOLD}{current_room}{MapColours.ENDC}",
-        base_map
-    ))
+    words = re.findall(room_reg, base_map).pop()
+    if isinstance(words, str):
+        words = [words]
+    for word in words:
+        base_map = highlight_word(word, base_map, colour, bold)
+    print(base_map, flush=True)
+    print("Command?")
 
 
 @aoc_timer
@@ -95,7 +117,7 @@ def Day25(program_file, debug=True, routine_file=None, map_file='map.txt'):
             print("Exiting game...")
             sys.exit(0)
         elif cmd.lower().startswith('m'):
-            show_map(map_file)
+            show_map(map_file, current_room)
             queue_input(input())
         else:
             for ch in cmd:
@@ -112,21 +134,18 @@ def Day25(program_file, debug=True, routine_file=None, map_file='map.txt'):
         queue_auto(get_routine(routine_file))
 
     encounter = ""
-    # current_room = None
-    # room_search = r'== ([a-zA-Z -]+) =='
-    # room_sep = r'[ \n#|]+'
+    current_room = None
+    room_search = r'== ([a-zA-Z -]+) =='
     VM = IntcodeComputer(program_file, input=get_input)
     while not VM.halted:
         out = VM.run()
         if out is not None:
             encounter += (out := chr(out))
             if debug:
-                print(out, end='')
-            # if out == '?':
-            #     map_search = ""
-            #     current_room = re.findall(room_search, encounter).pop()
-    password = re.findall(r'\d+', encounter)[-1]
-    # rooms_visited = re.findall(room_search, encounter)
+                print(out, end='', flush=routine_file is None)
+            if out == '?':
+                current_room = re.findall(room_search, encounter).pop()
+    password = re.findall(r'\d+', encounter).pop()
     return int(password)
 
 
