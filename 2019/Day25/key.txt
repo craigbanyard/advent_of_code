@@ -1,0 +1,4 @@
+required: fixed point, easter egg, tambourine, space heater
+decoy: festive hat, jam, asterisk, antenna
+hazard: infinite loop, photons, giant electromagnet, molten lava, escape pod
+rooms: Hull Breach, Engineering, Arcade, Crew Quarters, Passages, Hot Chocolate Fountain, Navigation, Corridor, Stables, Kitchen, Science Lab, Warp Drive Maintenance, Sick Bay, Holodeck, Gift Wrapping Center, Hallway, Observatory, Storage, Security Checkpoint, Pressure-Sensitive Floor

@@ -123,7 +123,10 @@ def unit25():
     print("\nDay 25")
     program_file = path + '\\Day25\\input.txt'
     routine_file = path + '\\Day25\\routine.txt'
-    p1 = Day25(program_file, debug=False, routine_file=routine_file)
+    map_file = path + '\\Day25\\map.txt'
+    key_file = path + '\\Day25\\key.txt'
+    droid = Day25(program_file, routine_file, map_file, key_file, output=False)
+    p1 = droid.solve()
     return p1, None
 
 

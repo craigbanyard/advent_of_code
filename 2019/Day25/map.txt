@@ -24,17 +24,17 @@
                            #                |                                 |                #
                            ####################################################----------------#
                                                              # Kitchen        | Crew Quarters  #
-                                                             #                |                #
-                                                             # > asterisk     | > fixed point  #
-                                                             #                |                #
-                                            ###################################----------------##################
-                                            # Corridor       | Navigation     | Passages       | Hot Chocolate  #
-                                            #                |                |                | Fountain       #
-                                            # > jam          |                | > festive hat  | > giant elect- #
-                                            #                |                |                |   romagnet     #
-     N                                      #----------------####################################################
-     |                                      # Stables        #
- W --@-- E                                  #                #
-     |                                      # > easter egg   #
-     S                                      #                #
+   KEY                                                       #                |                #
+    Current Room                                             # > asterisk     | > fixed point  #
+    Required Item                                            #                |                #
+    Decoy Item                              ###################################----------------###################
+    Hazardous Item                          # Corridor       | Navigation     | Passages       | Hot Chocolate   #
+                                            #                |                |                | Fountain        #
+                                            # > jam          |                | > festive hat  | > giant         #
+                                            #                |                |                |   electromagnet #
+        N                                   #----------------#####################################################
+        |                                   # Stables        #
+    W --@-- E                               #                #
+        |                                   # > easter egg   #
+        S                                   #                #
                                             ##################
