@@ -63,13 +63,15 @@ class Day25:
         'hazard': 'Hazardous Item'
     }
     END_COLOUR = Colours.ENDC
-    ROOM_SEARCH = r'== ([a-zA-Z -]+) =='
+    ROOM_SEARCH = r'== (.+) =='
+    CMD = "Command?"
 
     def __init__(self,
                  program_file,
                  routine_file=None,
                  map_file='map.txt',
                  key_file='key.txt',
+                 help_file='help.txt',
                  output=True
         ):
         # Initialisation arguments
@@ -77,13 +79,14 @@ class Day25:
         self.routine_file = routine_file
         self.map_file = map_file
         self.key_file = key_file
+        self.help_file = help_file
         self.output = output
         # Game control
         self.routine = self.set_routine()
         self.Q = deque()
         self.cmd = None
-        self.out = None
-        self.encounter = ""
+        self.help = self.set_help()
+        self.last = ""
         # Mapping
         self.key = self.set_key()
         self.cheats = None
@@ -92,7 +95,7 @@ class Day25:
 
     def set_routine(self):
         """
-        Return a generator for all characters (as ASCII) in file at path.
+        Return a generator for all ASCII characters in self.routine_file.
         Routine generated via playing game manually in interactive shell.
 
         To auto-solve this, need to write a routing algorithm (e.g. BFS)
@@ -103,6 +106,10 @@ class Day25:
             return None
         for x in open(self.routine_file).read():
             yield ord(x)
+
+    def set_help(self):
+        """Read in the command help file at self.help_file."""
+        return open(self.help_file).read()
 
     def set_key(self):
         """Set the key for rooms and items."""
@@ -189,37 +196,50 @@ class Day25:
             base_map = self.highlight_word(word, colour, base_map)
         base_map = self.highlight_word(label, colour, base_map)
         print(base_map, flush=True)
-        print("Command?")
+        print(self.CMD)
 
-    def get_input(self):
-        """Function used as input to Intcode VM."""
-        if not self.Q:
-            self.queue_input(input())
-        out = self.Q.popleft()
-        if self.output:
-            print(chr(out), end='', flush=True)
-        return out
+    def show_help(self):
+        """Display the help file."""
+        print(self.help)
+        print(self.CMD)
+
+    def show_last(self):
+        """Display the last description output by the droid."""
+        print(self.last)
+        print(self.CMD)
 
     def queue_input(self, inp):
         """Add user input to VM input queue."""
         self.cmd = inp
+        if self.output:
+            print(self.cmd, flush=True)
         if self.cmd.lower().startswith('q'):
-            print("Exiting game...")
+            print("Powering down...")
             sys.exit(0)
         elif self.cmd.lower().startswith('m'):
-            print(self.cmd, flush=True)
             self.set_cheats()
             self.show_map()
-            self.queue_input(input())
+        elif self.cmd.lower().startswith('h'):
+            self.show_help()
+        elif self.cmd.lower().startswith('l'):
+            self.show_last()
         else:
             for ch in self.cmd:
                 self.Q.append(ord(ch))
             self.Q.append(10)
+            return None
+        self.queue_input(input())
 
     def queue_auto(self):
         """Add auto-solved instructions to VM input queue."""
         for ch in self.routine:
             self.Q.append(ch)
+
+    def get_input(self):
+        """Function used as input to Intcode VM."""
+        if not self.Q:
+            self.queue_input(input())
+        return self.Q.popleft()
 
     @aoc_timer
     def solve(self):
@@ -227,18 +247,20 @@ class Day25:
             self.queue_auto()
 
         VM = IntcodeComputer(self.program_file, input=self.get_input)
+        encounter = ""
         while not VM.halted:
             out = VM.run()
             if out is not None:
-                self.encounter += (out := chr(out))
+                encounter += (out := chr(out))
                 if self.output:
                     print(out, end='', flush=self.routine is None)
                 if out == '?':
                     self.current_room = re.findall(
                         self.ROOM_SEARCH,
-                        self.encounter
+                        encounter
                     ).pop()
-        password = re.findall(r'\d+', self.encounter).pop()
+                    self.last = encounter.split(self.CMD)[-2]
+        password = re.findall(r'\d+', encounter).pop()
         return int(password)
 
 
@@ -249,7 +271,15 @@ def main():
     routine_file = 'routine.txt'
     map_file = 'map.txt'
     key_file = 'key.txt'
-    droid = Day25(program_file, routine_file, map_file, key_file, output=True)
+    help_file = 'help.txt'
+    droid = Day25(
+        program_file,
+        routine_file,
+        map_file,
+        key_file,
+        help_file,
+        output=True
+    )
     print("Part 1:", droid.solve())
 
 

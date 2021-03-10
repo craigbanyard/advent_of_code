@@ -125,7 +125,8 @@ def unit25():
     routine_file = path + '\\Day25\\routine.txt'
     map_file = path + '\\Day25\\map.txt'
     key_file = path + '\\Day25\\key.txt'
-    droid = Day25(program_file, routine_file, map_file, key_file, output=False)
+    help_file = path + '\\Day25\\help.txt'
+    droid = Day25(program_file, routine_file, map_file, key_file, help_file, output=False)
     p1 = droid.solve()
     return p1, None
 

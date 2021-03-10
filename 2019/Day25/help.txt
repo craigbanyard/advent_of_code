@@ -1,0 +1,46 @@
+
+    Day 25 Droid Commands
+
+    > Movement:
+        north
+        south
+        east
+        west
+    > Take item:
+        take <name of item>
+        ? e.g. take red ball
+        (pick up the "red ball" item)
+    > Drop item:
+        drop <name of item>
+        ? e.g. drop green ball
+        (drop the "green ball" item)
+    > Inspect inventory:
+        inv
+    > Show help:
+        help
+    > Show last description from droid:
+        last
+    > Show map:
+        map
+        > Command line arguments:
+            -c
+            -c [-d -h -r]
+            -x
+        ? e.g. map -c -d -r
+        (show map with decoy and required item cheats enabled)
+    > Quit:
+        quit
+
+
+    Movement, take, drop and inv commands are sent to the droid
+    via queued Intcode input instructions. They are, therefore,
+    case sensitive and must be provided precisely.
+
+    Help, last, map and quit commands are not sent to the droid.
+    These commands are case insensitive. In fact, only the first
+    letter of each command is read.
+    Command line arguments, however, are case sensitive. These
+    arguments are optional.
+
+    Map cheats persist until modified via command line arguments.
+
