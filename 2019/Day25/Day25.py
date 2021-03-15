@@ -66,14 +66,15 @@ class Day25:
     ROOM_SEARCH = r'== (.+) =='
     CMD = "Command?"
 
-    def __init__(self,
-                 program_file,
-                 routine_file=None,
-                 map_file='map.txt',
-                 key_file='key.txt',
-                 help_file='help.txt',
-                 output=True
-        ):
+    def __init__(
+        self,
+        program_file,
+        routine_file=None,
+        map_file='map.txt',
+        key_file='key.txt',
+        help_file='help.txt',
+        output=True
+    ):
         # Initialisation arguments
         self.program_file = program_file
         self.routine_file = routine_file
@@ -114,8 +115,10 @@ class Day25:
     def set_key(self):
         """Set the key for rooms and items."""
         return {
-            k: v.split(", ") for k, v in [line.split(": ")
-            for line in open(self.key_file).read().split('\n')]
+            k: v.split(", ") for k, v in [
+                line.split(": ") for line in
+                open(self.key_file).read().split('\n')
+            ]
         }
 
     def set_cheats(self):
