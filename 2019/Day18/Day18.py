@@ -1,4 +1,3 @@
-# %% Cleaned
 from helper import aoc_timer
 from collections import deque
 from math import inf
