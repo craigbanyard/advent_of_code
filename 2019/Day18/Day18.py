@@ -72,8 +72,8 @@ def Day18(data, part2=False):
         data = [list(line) for line in data]
         for r, c in itertools.product(range(R), range(C)):
             if data[r][c] == '@':
-                data[r][c] = '#'
                 # Wall up
+                data[r][c] = '#'
                 for dr, dc in DIRS:
                     data[r + dr][c + dc] = '#'
                 # Add robots
