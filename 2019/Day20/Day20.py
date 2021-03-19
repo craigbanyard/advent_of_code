@@ -50,7 +50,7 @@ def Day20(data, part1=True, output=False):
 
     # Dictionary of entry and exit points of all portals
     portals = defaultdict(list)
-    for r, c in itertools.product(range(R-1), range(C-1)):
+    for r, c in itertools.product(range(R - 1), range(C - 1)):
         if (p := data[r][c]) not in LETTERS:
             continue
         # Try reading down
