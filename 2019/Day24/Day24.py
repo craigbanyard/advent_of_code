@@ -1,14 +1,14 @@
 from helper import aoc_timer
 import numpy as np
-from scipy.ndimage import correlate
 import itertools
 from collections import defaultdict
+from scipy.ndimage import correlate
 
 
 class Day24:
     """Class for Day 24 layout grids."""
 
-    # Constants (independent of initialisation args)
+    # Class constants (independent of initialisation args)
     DIRS = [
         (-1, 0),        # Up
         (0, 1),         # Right
@@ -20,14 +20,14 @@ class Day24:
         # Construct initial layout
         self.path = path
         self.layout = self.get_grid()
-        # Constants (dependent on initialisation args)
+        # Instance constants (dependent on initialisation args)
         self.DIMS = self.layout.shape
         self.MID = tuple(x//2 for x in self.DIMS)
         self.INNER = self.get_inner()
         self.OUTER = self.get_outer()
-        # Part 1 properties
+        # Part 1 instance variables
         self.seen = set()
-        # Part 2 properties
+        # Part 2 instance variables
         self.empty = np.zeros(self.DIMS, dtype=int)
         self.adjacency = self.get_adjacency()
 
@@ -38,25 +38,24 @@ class Day24:
     def get_grid(self):
         """Convert ASCII list into numpy binary array."""
         data = self.get_input()
-        N = len(data)
-        G = np.zeros((N, N), dtype=int)
+        # Dimensions: assume non-jagged but not necessarily square
+        R, C = len(data), len(data[0])
+        G = np.zeros((R, C), dtype=int)
         for r, line in enumerate(data):
             G[r][[i for i, ch in enumerate(line) if ch == '#']] = 1
         return G
 
     def get_inner(self):
         """Get inner tiles based on layout size."""
-        r, c = self.MID
-        return {(r + dr, c + dc) for (dr, dc) in self.DIRS}
+        RM, CM = self.MID
+        return {(RM + dr, CM + dc) for (dr, dc) in self.DIRS}
 
     def get_outer(self):
         """Get outer tiles based on layout size."""
-        r, c = self.DIMS
-        rr = (0, r - 1)
-        cc = (0, c - 1)
+        R, C = self.DIMS
         return {
-            (r, c) for r, c in itertools.product(range(r), range(c))
-            if r in rr or c in cc
+            (r, c) for r, c in itertools.product(range(R), range(C))
+            if r in (0, R - 1) or c in (0, C - 1)
         }
 
     def get_adjacency(self):
@@ -92,6 +91,8 @@ class Day24:
                         adj[(rr, cc)].add((-1, r, c))
         # Add intra-depth adjacency
         for r, c in itertools.product(range(R), range(C)):
+            if (r, c) == self.MID:
+                continue
             for dr, dc in self.DIRS:
                 rr = r + dr
                 cc = c + dc
@@ -108,50 +109,6 @@ class Day24:
     def recursed(self):
         """Check whether the layout has recursed from depth zero."""
         return self.layout.shape != self.DIMS
-
-    def __repr__(self):
-        """ASCII representation of layout."""
-        if self.recursed():
-            G = self.layout
-        else:
-            G = np.expand_dims(self.layout, axis=0)
-        out = ""
-        I, J, K = G.shape
-        for i in range(I):
-            if not G[i].sum():
-                continue
-            if I > 1:
-                # Works if layout extended symmetrically
-                out += f'Depth {i - I//2}:\n'
-            for j in range(J):
-                for k in range(K):
-                    if I > 1 and (j, k) == self.MID:
-                        out += '?'
-                    elif G[i][j][k]:
-                        out += '#'
-                    else:
-                        out += '.'
-                out += '\n'
-            out += '\n'
-        return out
-
-    def evolve(self):
-        """Perform one timestep grid evolution for part 1."""
-        if self.recursed():
-            raise ValueError("Layout has already recursed, " +
-            "cannot evolve using this method.")
-        G = self.layout
-        kernel = np.array([
-            [0, 1, 0],
-            [1, 0, 1],
-            [0, 1, 0]
-        ], dtype=int)
-        nei = correlate(G, kernel, mode='constant', cval=0)
-        nxt = G.copy()
-        nxt[(G == 0) & ((nei == 1) | (nei == 2))] = 1
-        nxt[(G == 1) & (nei != 1)] = 0
-        self.layout = nxt
-        return nxt
 
     def bio(self, dim=None):
         """
@@ -192,6 +149,24 @@ class Day24:
         return {tuple(x) for x in 
                 np.transpose(np.where(self.layout))}
 
+    def evolve(self):
+        """Perform one timestep grid evolution for part 1."""
+        if self.recursed():
+            raise ValueError("Layout has already recursed, " +
+            "cannot evolve using this method.")
+        G = self.layout
+        kernel = np.array([
+            [0, 1, 0],
+            [1, 0, 1],
+            [0, 1, 0]
+        ], dtype=int)
+        nei = correlate(G, kernel, mode='constant', cval=0)
+        nxt = G.copy()
+        nxt[(G == 0) & ((nei == 1) | (nei == 2))] = 1
+        nxt[(G == 1) & (nei != 1)] = 0
+        self.layout = nxt
+        return None
+
     def evolve_recurse(self):
         """Perform one timestep grid evolution for part 2."""
         self.pad()
@@ -208,7 +183,33 @@ class Day24:
         nxt[(G == 0) & ((nei == 1) | (nei == 2))] = 1
         nxt[(G == 1) & (nei != 1)] = 0
         self.layout = nxt
-        return nxt
+        return None
+
+    def __repr__(self):
+        """ASCII representation of layout."""
+        if self.recursed():
+            G = self.layout
+        else:
+            G = np.expand_dims(self.layout, axis=0)
+        out = ""
+        I, J, K = G.shape
+        for i in range(I):
+            if not G[i].sum():
+                continue
+            if I > 1:
+                # Works if layout extended symmetrically
+                out += f'Depth {i - I//2}:\n'
+            for j in range(J):
+                for k in range(K):
+                    if I > 1 and (j, k) == self.MID:
+                        out += '?'
+                    elif G[i][j][k]:
+                        out += '#'
+                    else:
+                        out += '.'
+                out += '\n'
+            out += '\n'
+        return out
 
     @aoc_timer
     def solve_p1(self):
