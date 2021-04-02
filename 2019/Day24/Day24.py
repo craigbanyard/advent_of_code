@@ -22,7 +22,7 @@ class Day24:
         self.layout = self.get_grid()
         # Instance constants (dependent on initialisation args)
         self.DIMS = self.layout.shape
-        self.MID = tuple(x//2 for x in self.DIMS)
+        self.MID = tuple(x // 2 for x in self.DIMS)
         self.INNER = self.get_inner()
         self.OUTER = self.get_outer()
         # Part 1 instance variables
@@ -146,14 +146,14 @@ class Day24:
 
     def get_bugs(self):
         """Return set of active bug tiles."""
-        return {tuple(x) for x in 
+        return {tuple(x) for x in
                 np.transpose(np.where(self.layout))}
 
     def evolve(self):
         """Perform one timestep grid evolution for part 1."""
         if self.recursed():
-            raise ValueError("Layout has already recursed, " +
-            "cannot evolve using this method.")
+            err = "Layout has already recursed, cannot evolve using this method."
+            raise ValueError(err)
         G = self.layout
         kernel = np.array([
             [0, 1, 0],
