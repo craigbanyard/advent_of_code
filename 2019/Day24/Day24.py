@@ -15,6 +15,16 @@ class Day24:
         (1, 0),         # Down
         (0, -1)         # Left
     ]
+    KERNEL = np.array([
+        [0, 1, 0],
+        [1, 0, 1],
+        [0, 1, 0]
+    ], dtype=int)
+    KERNEL_3D = np.stack([
+        np.zeros(KERNEL.shape, dtype=int),
+        KERNEL,
+        np.zeros(KERNEL.shape, dtype=int)
+    ])
 
     def __init__(self, path):
         # Construct initial layout
@@ -59,7 +69,7 @@ class Day24:
         }
 
     def get_adjacency(self):
-        """Get the full tile adjacency dictionary."""
+        """Get the inter-depth adjacency dictionary."""
         adj = defaultdict(set)
         RM, CM = self.MID
         R, C = self.DIMS
@@ -89,21 +99,6 @@ class Day24:
                     if cc == C - 1:
                         adj[(r, c)].add((1, rr, cc))
                         adj[(rr, cc)].add((-1, r, c))
-        # Add intra-depth adjacency
-        for r, c in itertools.product(range(R), range(C)):
-            if (r, c) == self.MID:
-                continue
-            for dr, dc in self.DIRS:
-                rr = r + dr
-                cc = c + dc
-                # Outer depth - already processed
-                if rr not in range(R) or cc not in range(C):
-                    continue
-                # Inner depth - already processed
-                if (rr, cc) == self.MID:
-                    continue
-                # Current depth
-                adj[(r, c)].add((0, rr, cc))
         return adj
 
     def recursed(self):
@@ -155,34 +150,27 @@ class Day24:
             err = "Layout has already recursed, cannot evolve using this method."
             raise ValueError(err)
         G = self.layout
-        kernel = np.array([
-            [0, 1, 0],
-            [1, 0, 1],
-            [0, 1, 0]
-        ], dtype=int)
-        nei = correlate(G, kernel, mode='constant', cval=0)
-        nxt = G.copy()
-        nxt[(G == 0) & ((nei == 1) | (nei == 2))] = 1
-        nxt[(G == 1) & (nei != 1)] = 0
-        self.layout = nxt
+        nei = correlate(G, self.KERNEL, mode='constant', cval=0)
+        self.layout = ((G & (nei == 1)) | (~G & ((nei == 1) | (nei == 2))))
         return None
 
     def evolve_recurse(self):
         """Perform one timestep grid evolution for part 2."""
         self.pad()
         G = self.layout
+        # Current depth adjacency
+        nei = correlate(G, self.KERNEL_3D, mode='constant', cval=0)
+        # Inter-depth adjacency
         bugs = self.get_bugs()
-        nei = np.zeros(G.shape, dtype=int)
-        nxt = G.copy()
         for d, r, c in bugs:
             for dd, rr, cc in self.adjacency[(r, c)]:
                 if (d + dd, rr, cc) in bugs:
                     nei[d][r][c] += 1
                 else:
                     nei[d + dd][rr][cc] += 1
-        nxt[(G == 0) & ((nei == 1) | (nei == 2))] = 1
-        nxt[(G == 1) & (nei != 1)] = 0
-        self.layout = nxt
+        self.layout = ((G & (nei == 1)) | (~G & ((nei == 1) | (nei == 2))))
+        # Clear centre tile as this cannot be a bug
+        self.layout[:, 2, 2] = 0
         return None
 
     def __repr__(self):
