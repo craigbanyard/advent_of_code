@@ -16,16 +16,16 @@ def Day09(grid):
 
     D = [
         (-1, 0),    # Up
+        (0, 1),     # Right
         (1, 0),     # Down
-        (0, -1),    # Left
-        (0, 1)      # Right
+        (0, -1)     # Left
     ]
 
     R, C = len(grid), len(grid[0])
 
     def valid(r, c):
         '''Determine whether (r, c) lies in the grid.'''
-        return r in range(R) and c in range(C)
+        return 0 <= r < R and 0 <= c < C
 
     def bfs(grid, r, c):
         '''
@@ -44,23 +44,20 @@ def Day09(grid):
                     Q.append((rr, cc))
         return len(visited)
 
-    lows = {}
-    basins = {}
-    for r, _ in enumerate(grid):
-        for c, n in enumerate(grid[r]):
-            if n == 9:
+    lows = deque()
+    basins = deque()
+    for r in range(R):
+        for c in range(C):
+            if (n := grid[r][c]) == 9:
                 continue
             m = min([grid[r + dr][c + dc] for dr, dc in D
                      if valid(r + dr, c + dc)])
             if n < m:
-                lows[(r, c)] = n + 1
-                basins[(r, c)] = bfs(grid, r, c)
+                lows.append(n + 1)
+                basins.append(bfs(grid, r, c))
 
-    p1 = sum(lows.values())
-
-    p2 = 1
-    for k in sorted(basins, key=basins.get, reverse=True)[:3]:
-        p2 *= basins[k]
+    p1 = np.sum(lows)
+    p2 = np.prod(sorted(basins)[-3:])
 
     return p1, p2
 
