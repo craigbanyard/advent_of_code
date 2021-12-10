@@ -26,27 +26,24 @@ def Day10(data):
         '>': 25137
     }
     AUTOCOMPLETE = {k: idx + 1 for idx, k in enumerate(SYNTAX)}
+
     for line in data:
         stack = deque()
-        incomplete = True
         for ch in line:
             if ch in CLOSE:
-                if stack[-1] == CLOSE[ch]:
-                    stack.pop()
-                else:
+                if stack.pop() != CLOSE[ch]:
                     p1 += SYNTAX[ch]
-                    incomplete = False
                     break
             else:
                 stack.append(ch)
-        if incomplete:
+        else:
+            # Incomplete line (i.e. didn't encounter break)
             score = 0
             while stack:
                 close = OPEN[stack.pop()]
-                score *= 5
-                score += AUTOCOMPLETE[close]
+                score = 5 * score + AUTOCOMPLETE[close]
             scores.append(score)
-    p2 = sorted(scores)[len(scores)//2]
+    p2 = sorted(scores)[len(scores) // 2]
     return p1, p2
 
 
