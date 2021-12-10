@@ -10,38 +10,35 @@ def get_input(path):
 
 @aoc_timer
 def Day10(data):
+    OPEN = {
+        '(': ')',
+        '[': ']',
+        '{': '}',
+        '<': '>'
+    }
+    CLOSE = {v: k for k, v in OPEN.items()}
+    SCORES = {
+        ')': (3, 1),
+        ']': (57, 2),
+        '}': (1197, 3),
+        '>': (25137, 4)
+    }
+
     p1 = 0
     scores = []
-    CLOSE = {
-        ')': '(',
-        ']': '[',
-        '}': '{',
-        '>': '<'
-    }
-    OPEN = {v: k for k, v in CLOSE.items()}
-    SYNTAX = {
-        ')': 3,
-        ']': 57,
-        '}': 1197,
-        '>': 25137
-    }
-    AUTOCOMPLETE = {k: idx + 1 for idx, k in enumerate(SYNTAX)}
-
     for line in data:
         stack = deque()
         for ch in line:
-            if ch in CLOSE:
-                if stack.pop() != CLOSE[ch]:
-                    p1 += SYNTAX[ch]
-                    break
-            else:
+            if ch in OPEN:
                 stack.append(ch)
-        else:
-            # Incomplete line (i.e. didn't encounter break)
+            elif stack.pop() != CLOSE[ch]:
+                p1 += SCORES[ch][0]
+                break
+        else:   # Incomplete line (i.e. didn't encounter break)
             score = 0
             while stack:
-                close = OPEN[stack.pop()]
-                score = 5 * score + AUTOCOMPLETE[close]
+                ch = OPEN[stack.pop()]
+                score = 5 * score + SCORES[ch][1]
             scores.append(score)
     p2 = sorted(scores)[len(scores) // 2]
     return p1, p2
