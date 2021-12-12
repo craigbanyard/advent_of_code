@@ -26,7 +26,7 @@ def score(n: int, k: int, board: np.ndarray, marks: dict[np.ndarray]) -> int:
     This is calculated as the sum of the unmarked numbers
     multiplied by the last number called.
     """
-    return n * np.sum(np.invert(marks[k]) * board)
+    return n * np.sum(~marks[k] * board)
 
 
 @aoc_timer
@@ -37,10 +37,10 @@ def Day04(data: tuple[np.ndarray, dict[np.ndarray]]):
     for n in draw:
         boards = {k: boards[k] for k in play}
         for k, board in boards.items():
-            marks[k] ^= board == n
+            marks[k] |= board == n
             r = np.all(marks[k], axis=0)
             c = np.all(marks[k], axis=1)
-            if np.any(r ^ c):
+            if np.any(r | c):
                 yield score(n, k, board, marks)
                 play.remove(k)
             if not play:

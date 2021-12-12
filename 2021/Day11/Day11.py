@@ -25,7 +25,7 @@ def evolve(G: np.ndarray, N=None, F=None) -> tuple[np.ndarray, int]:
     # Evolve grid recursively until no high-energy octopuses (H) remain
     G += N
     H = G > 9
-    F ^= H
+    F |= H
     G[F] = 0
     if np.any(H):
         # Convert H from bool to int to calculate neighbours
