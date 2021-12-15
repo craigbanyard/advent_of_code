@@ -7,8 +7,8 @@ import numpy as np
 def get_input(path):
     G = []
     for line in open(path).read().splitlines():
-        G.append([*line])
-    return np.array(G, dtype=int)
+        G.append([*map(int, [*line])])
+    return G
 
 
 @aoc_timer
