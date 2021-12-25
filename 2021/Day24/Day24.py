@@ -1,4 +1,3 @@
-from numpy import mod
 from helper import aoc_timer
 from collections import deque
 
@@ -90,8 +89,8 @@ def Day24(data):
         | 1   | mul x 0    | (1) |
         | 2   | add x z    | (1) |
         | 3   | mod x 26   | (1) |
-        | 4   | div z {a}  | (2) |
-        | 5   | add x {b}  | (1) |
+        | 4   | div z {a}  | (2) |  <- variable 1
+        | 5   | add x {b}  | (1) |  <- variable 2
         | 6   | eql x w    | (1) |
         | 7   | eql x 0    | (1) |
         | 8   | mul y 0    | (3) |
@@ -101,7 +100,7 @@ def Day24(data):
         | 12  | mul z y    | (3) |
         | 13  | mul y 0    | (4) |
         | 14  | add y w    | (4) |
-        | 15  | add y {c}  | (4) |
+        | 15  | add y {c}  | (4) |  <- variable 3
         | 16  | mul y x    | (4) |
         | 17  | add z y    | (4) |
         |-----|------------|-----|
@@ -151,8 +150,8 @@ def main():
     print("AoC 2021\nDay 24")
     data = get_input('input.txt')
     p1, p2 = Day24(data)
-    assert (z := alu(data, p1)) == 0, z
-    assert (z := alu(data, p2)) == 0, z
+    assert (z := alu(data, p1)) == 0, f'{p1} -> {z}'
+    assert (z := alu(data, p2)) == 0, f'{p2} -> {z}'
     print("Part 1:", p1)
     print("Part 2:", p2)
 
