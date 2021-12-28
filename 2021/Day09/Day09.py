@@ -1,6 +1,7 @@
 from helper import aoc_timer
 from collections import deque
-import numpy as np
+import itertools as it
+from math import prod
 
 
 @aoc_timer
@@ -46,18 +47,17 @@ def Day09(grid):
 
     lows = deque()
     basins = deque()
-    for r in range(R):
-        for c in range(C):
-            if (n := grid[r][c]) == 9:
-                continue
-            m = min([grid[r + dr][c + dc] for dr, dc in D
-                     if valid(r + dr, c + dc)])
-            if n < m:
-                lows.append(n + 1)
-                basins.append(bfs(grid, r, c))
+    for r, c in it.product(range(R), range(C)):
+        if (n := grid[r][c]) == 9:
+            continue
+        m = min([grid[r + dr][c + dc] for dr, dc in D
+                 if valid(r + dr, c + dc)])
+        if n < m:
+            lows.append(n + 1)
+            basins.append(bfs(grid, r, c))
 
-    p1 = np.sum(lows)
-    p2 = np.prod(sorted(basins)[-3:])
+    p1 = sum(lows)
+    p2 = prod(sorted(basins)[-3:])
 
     return p1, p2
 

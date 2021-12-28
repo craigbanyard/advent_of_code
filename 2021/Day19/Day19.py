@@ -15,32 +15,18 @@ def get_input(path):
 
 
 def corner(a):
-    '''This is just disgusting.'''
+    '''Assign point a to a corner of the scanner's bounding cube.'''
     T = 200
-    x, y, z = a
-    if x < -T:
-        if y < -T:
-            if z < -T:
-                return 1
-            if z > T:
-                return 2
-        if y > T:
-            if z < -T:
-                return 3
-            if z > T:
-                return 4
-    if x > -T:
-        if y < -T:
-            if z < -T:
-                return 5
-            if z > T:
-                return 6
-        if y > T:
-            if z < -T:
-                return 7
-            if z > T:
-                return 8
-    return 0
+    match a:
+        case (x, y, z) if x < -T and y < -T and z < -T: return 1
+        case (x, y, z) if x < -T and y < -T and z > T: return 2
+        case (x, y, z) if x < -T and y > T and z < -T: return 3
+        case (x, y, z) if x < -T and y > T and z > T: return 4
+        case (x, y, z) if x > T and y < -T and z > T: return 5
+        case (x, y, z) if x > T and y < -T and z < -T: return 6
+        case (x, y, z) if x > T and y > T and z > T: return 7
+        case (x, y, z) if x > T and y > T and z < -T: return 8
+        case _: return 0
 
 
 def add(a, b):

@@ -18,37 +18,24 @@ def alu_naive(data, model_number):
         'z': 0
     }
     for instr in data:
+        b = instr[-1]
+        b = vars[b] if b in vars else int(b)
         match instr:
             case ['inp', a]:
                 vars[a] = model_number.popleft()
-            case ['add', a, b]:
-                if b in vars:
-                    vars[a] += vars[b]
-                else:
-                    vars[a] += int(b)
-            case ['mul', a, b]:
-                if b in vars:
-                    vars[a] *= vars[b]
-                else:
-                    vars[a] *= int(b)
-            case ['div', a, b]:
-                if b in vars:
-                    vars[a] //= vars[b]
-                else:
-                    vars[a] //= int(b)
-            case ['mod', a, b]:
-                if b in vars:
-                    vars[a] %= vars[b]
-                else:
-                    vars[a] %= int(b)
-            case ['eql', a, b]:
-                if b in vars:
-                    vars[a] = 1 if vars[a] == vars[b] else 0
-                else:
-                    vars[a] = 1 if vars[a] == int(b) else 0
+            case ['add', a, _]:
+                vars[a] += b
+            case ['mul', a, _]:
+                vars[a] *= b
+            case ['div', a, _]:
+                vars[a] //= b
+            case ['mod', a, _]:
+                vars[a] %= b
+            case ['eql', a, _]:
+                vars[a] = 1 if vars[a] == b else 0
             case _:
                 assert False, instr
-    return vars['z'], None
+    return vars['z']
 
 
 def get_alu_vars(data):
