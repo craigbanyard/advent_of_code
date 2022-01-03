@@ -1,4 +1,4 @@
-from helper import aoc_timer
+from helper import aoc_timer, Colours
 from collections import defaultdict, deque
 import heapq
 import math
@@ -7,6 +7,14 @@ import re
 
 
 A, B, C, D, E = 'ABCD.'
+COLOUR_KEY = {
+    A: f'{Colours.fg.GREEN}{A}{Colours.ENDC}',
+    B: f'{Colours.fg.LIGHTBLUE}{B}{Colours.ENDC}',
+    C: f'{Colours.fg.PINK}{C}{Colours.ENDC}',
+    D: f'{Colours.fg.RED}{D}{Colours.ENDC}',
+    E: E
+}
+NO_COLOUR_KEY = {k: k for k in [A, B, C, D, E]}
 ROOMS = [A, B, C, D]
 COST = {room: 10 ** idx for idx, room in enumerate(ROOMS)}
 EXTENSION = [
@@ -167,12 +175,13 @@ def h_cost_home(state):
     return h_cost_home_hall(state) + room_cost
 
 
-def show(state, room_size):
+def show(state, room_size, colour=False):
     '''Return a string representation of the state.'''
+    key = [NO_COLOUR_KEY, COLOUR_KEY][colour]
     hall, rooms = mutable(state)
     res = []
     res.append('#############')
-    res.append(f"#{''.join(hall)}#")
+    res.append(f"#{''.join(key[x] for x in hall)}#")
     for idx, room in enumerate(rooms):
         while len(room) < room_size:
             room.appendleft('.')
@@ -181,7 +190,7 @@ def show(state, room_size):
             pad = '##'
         else:
             pad = '  '
-        res.append(f"{pad}#{'#'.join(row)}#{pad}")
+        res.append(f"{pad}#{'#'.join(key[x] for x in row)}#{pad}")
     res.append('  #########')
     return '\n'.join(res)
 
@@ -200,18 +209,18 @@ def construct_path(paths, start, end):
     return None
 
 
-def visualise(path, cost, room_size):
+def visualise(path, cost, room_size, colour=False):
     '''Return a string representation of a path of states.'''
     vis = ''
     for state in path:
         vis += f'\nEnergy: {cost[state]}\n'
-        vis += show(state, room_size)
+        vis += show(state, room_size, colour)
         vis += '\n'
     return vis
 
 
 @aoc_timer
-def Day23(data, part2=False, h=h_null):
+def Day23(data, part2=False, h=h_null, **kwargs):
     hall = [E for _ in range(11)]
     rooms = extend_input(data, part2)
     room_size = len(rooms[0])
@@ -239,13 +248,18 @@ def Day23(data, part2=False, h=h_null):
         iters += 1
 
     # Visualisation
-    if (path := construct_path(prev, start, goal)):
-        out_file = f'{os.getcwd()}\\Outputs\\part{[1, 2][part2]}.txt'
-        with open(out_file, 'w') as f:
-            vis = f'{h.__doc__}\n'
-            vis += f'States explored: {iters:,}\n'
-            vis += visualise(path, cost, room_size)
-            f.write(vis)
+    if kwargs.get('save', False):
+        if (path := construct_path(prev, start, goal)):
+            out_file = f'{os.getcwd()}\\Outputs\\part{[1, 2][part2]}.txt'
+            with open(out_file, 'w') as f:
+                vis = f'{h.__doc__}\n'
+                vis += f'States explored: {iters:,}\n'
+                vis += visualise(path, cost, room_size, colour=False)
+                f.write(vis)
+    if kwargs.get('vis', False):
+        if (path := construct_path(prev, start, goal)):
+            colour = kwargs.get('colour', True)
+            print(visualise(path, cost, room_size, colour=colour))
 
     return cost[goal]
 
@@ -254,8 +268,8 @@ def Day23(data, part2=False, h=h_null):
 def main():
     print("AoC 2021\nDay 23")
     data = get_input('input.txt')
-    print("Part 1:", Day23(data, part2=False, h=h_cost_home))
-    print("Part 2:", Day23(data, part2=True, h=h_null))
+    print("Part 1:", Day23(data, part2=False, h=h_cost_home, vis=True))
+    print("Part 2:", Day23(data, part2=True, h=h_null, vis=True))
 
 
 if __name__ == '__main__':
