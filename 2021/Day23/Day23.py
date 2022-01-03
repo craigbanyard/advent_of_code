@@ -1,12 +1,11 @@
 from helper import aoc_timer
 from collections import defaultdict, deque
-from copy import deepcopy
 import heapq
 import math
 import re
 
 
-A, B, C, D = 'ABCD'
+A, B, C, D, E = 'ABCD.'
 ROOMS = [A, B, C, D]
 COST = {room: 10 ** idx for idx, room in enumerate(ROOMS)}
 EXTENSION = [
@@ -19,14 +18,23 @@ ROOM_POS = {k: v for k, v in zip(ROOMS, ROOM_IDX)}
 
 
 @aoc_timer
-def get_input(path, part2=False):
+def get_input(path):
+    '''Return the base starting position of the rooms for part 1.'''
     start = re.findall(r'\w+', open(path).read())
     rooms = []
     for idx in range(len(ROOMS)):
-        rooms.append([start[idx], start[idx + 4]])
-        if part2:
-            rooms[idx][1:1] = [EXTENSION[idx], EXTENSION[idx + 4]]
-    return [deque(r) for r in rooms]
+        rooms.append(deque([start[idx], start[idx + 4]]))
+    return rooms
+
+
+def extend_input(data, part2=False):
+    '''Return the extended starting position of the rooms for part 2.'''
+    if not part2:
+        return data
+    data = [list(r) for r in data]
+    for idx in range(len(ROOMS)):
+        data[idx][1:1] = [EXTENSION[idx], EXTENSION[idx + 4]]
+    return [deque(r) for r in data]
 
 
 def mutable(state):
@@ -39,40 +47,6 @@ def immutable(state):
     '''Return a tuple of immutable elements.'''
     hall, rooms = state
     return tuple(hall), tuple(tuple(x) for x in rooms)
-
-
-def comparable(state):
-    '''
-    Return a state that can be compared using tuple comparison.
-    This is required for adding states to the priority queue.
-    '''
-    hall, rooms = state
-    return tuple('.' if not x else x for x in hall), rooms
-
-
-def incomparable(state):
-    '''Inverse of comparible, return state to its original form.'''
-    hall, rooms = state
-    return tuple(None if x == '.' else x for x in hall), rooms
-
-
-def show(state, room_size):
-    '''Return a string representation of the state.'''
-    hall, rooms = mutable(state)
-    res = []
-    res.append('#############')
-    res.append(f"#{''.join([x if x else '.' for x in hall])}#")
-    for idx, room in enumerate(rooms):
-        while len(room) < room_size:
-            room.appendleft('.')
-    for idx, row in enumerate(zip(*rooms)):
-        if idx == 0:
-            pad = '##'
-        else:
-            pad = '  '
-        res.append(f"{pad}#{'#'.join(row)}#{pad}")
-    res.append('  #########')
-    return '\n'.join(res)
 
 
 def is_home(idx, rooms):
@@ -107,7 +81,7 @@ def can_move_home(state, idx, amp, room_size, from_hall=False):
             else:
                 a, b = idx, home_pos + 1
             exit = (room_size - len(current_room))
-        if any(hall[a:b]):
+        if any(x != E for x in hall[a:b]):
             return False
         # Can move home, return cost to do so
         hall = abs(home_pos - idx)
@@ -127,13 +101,13 @@ def neighbours(state, room_size):
     hall, rooms = mutable(state)
     # Move from hall to home
     for idx, amp in enumerate(hall):
-        if not amp:
+        if amp == E:
             continue
-        if (ret := can_move_home(state, idx, amp, room_size, True)):
-            cost, home_idx = ret
+        if (res := can_move_home(state, idx, amp, room_size, True)):
+            cost, home_idx = res
             new_hall = list(hall)
-            new_hall[idx] = None
-            new_rooms = deepcopy(rooms)
+            new_hall[idx] = E
+            _, new_rooms = mutable(([], rooms))
             new_rooms[home_idx].append(amp)
             yield immutable((new_hall, new_rooms)), cost
     # Move from room to hall (or straight home)
@@ -143,21 +117,21 @@ def neighbours(state, room_size):
         if is_home(idx, rooms):
             continue
         amp = room.popleft()
-        if (ret := can_move_home((hall, rooms), idx, amp, room_size)):
-            cost, home_idx = ret
-            new_rooms = deepcopy(rooms)
+        if (res := can_move_home((hall, rooms), idx, amp, room_size)):
+            cost, home_idx = res
+            _, new_rooms = mutable(([], rooms))
             new_rooms[home_idx].append(amp)
             yield immutable((hall, new_rooms)), cost
         # Move from room to unblocked free hall space
         for hall_idx in HALL_IDX:
-            if hall[hall_idx]:
+            if hall[hall_idx] != E:
                 continue
             curr_idx = 2 * (idx + 1)
             if hall_idx < curr_idx:
                 a, b = hall_idx, curr_idx
             else:
                 a, b = curr_idx + 1, hall_idx + 1
-            if any(hall[a:b]):
+            if any(x != E for x in hall[a:b]):
                 continue
             new_hall = list(hall)
             new_hall[hall_idx] = amp
@@ -166,10 +140,49 @@ def neighbours(state, room_size):
         room.appendleft(amp)
 
 
-def h(state):
-    '''A* heuristic: number of amphipods in the hallway.'''
+def h_null(_):
+    '''A* heuristic: None - becomes Djikstra.'''
+    return 0
+
+
+def h_amp_in_hall(state):
+    '''A* heuristic: Number of amphipods in the hallway.'''
     hall, _ = state
-    return len([x for x in hall if x])
+    return len([x for x in hall if x != E])
+
+
+def h_cost_home_hall(state):
+    '''A* heuristic: Cost to home from hallway only (ignoring collisions).'''
+    hall, _ = state
+    return sum([COST[amp] * (abs(ROOM_POS[amp] - idx) + 1)
+                for idx, amp in enumerate(hall) if amp != E])
+
+
+def h_cost_home(state):
+    '''A* heuristic: Cost to home (ignoring collisions and walls).'''
+    _, rooms = state
+    room_cost = sum([COST[amp] * (abs(ROOM_POS[amp] - 2 * (idx + 1)))
+                     for idx, room in enumerate(rooms) for amp in room])
+    return h_cost_home_hall(state) + room_cost
+
+
+def show(state, room_size):
+    '''Return a string representation of the state.'''
+    hall, rooms = mutable(state)
+    res = []
+    res.append('#############')
+    res.append(f"#{''.join(hall)}#")
+    for idx, room in enumerate(rooms):
+        while len(room) < room_size:
+            room.appendleft('.')
+    for idx, row in enumerate(zip(*rooms)):
+        if idx == 0:
+            pad = '##'
+        else:
+            pad = '  '
+        res.append(f"{pad}#{'#'.join(row)}#{pad}")
+    res.append('  #########')
+    return '\n'.join(res)
 
 
 def construct_path(paths, start, end):
@@ -197,9 +210,9 @@ def visualise(path, cost, room_size):
 
 
 @aoc_timer
-def Day23(path, part2=False):
-    hall = [None for _ in range(11)]
-    rooms = get_input(path, part2)
+def Day23(data, part2=False, h=h_null):
+    hall = [E for _ in range(11)]
+    rooms = extend_input(data, part2)
     room_size = len(rooms[0])
     goal_rooms = [deque([room for _ in range(room_size)]) for room in ROOMS]
     goal = immutable((hall, goal_rooms))
@@ -208,11 +221,11 @@ def Day23(path, part2=False):
     cost = defaultdict(lambda: math.inf, {start: 0})
     prev = {}
     heapq.heappush(Q := [], (0, start))
+    iters = 0
 
-    # Djikstra
+    # A* search
     while Q:
         _, state = heapq.heappop(Q)
-        state = incomparable(state)
         if state == goal:
             break
         for new_state, energy_cost in neighbours(state, room_size):
@@ -221,12 +234,14 @@ def Day23(path, part2=False):
                 cost[new_state] = new_cost
                 prev[new_state] = state
                 priority = new_cost + h(new_state)
-                heapq.heappush(Q, (priority, comparable(new_state)))
+                heapq.heappush(Q, (priority, new_state))
+        iters += 1
 
     # Visualisation
     path = construct_path(prev, start, goal)
     if path:
         print(visualise(path, cost, room_size))
+    print(f'States explored: {iters}')
 
     return cost[goal]
 
@@ -234,9 +249,9 @@ def Day23(path, part2=False):
 # %% Output
 def main():
     print("AoC 2021\nDay 23")
-    path = 'input.txt'
-    print("Part 1:", Day23(path, part2=False))
-    print("Part 2:", Day23(path, part2=True))
+    data = get_input('input.txt')
+    print("Part 1:", Day23(data, part2=False, h=h_cost_home))
+    print("Part 2:", Day23(data, part2=True, h=h_null))
 
 
 if __name__ == '__main__':
