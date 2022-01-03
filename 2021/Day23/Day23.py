@@ -184,7 +184,7 @@ def show(state, room_size, colour=False):
     res.append(f"#{''.join(key[x] for x in hall)}#")
     for idx, room in enumerate(rooms):
         while len(room) < room_size:
-            room.appendleft('.')
+            room.appendleft(E)
     for idx, row in enumerate(zip(*rooms)):
         if idx == 0:
             pad = '##'
