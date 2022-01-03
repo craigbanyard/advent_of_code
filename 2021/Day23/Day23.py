@@ -2,6 +2,7 @@ from helper import aoc_timer
 from collections import defaultdict, deque
 import heapq
 import math
+import os
 import re
 
 
@@ -238,10 +239,13 @@ def Day23(data, part2=False, h=h_null):
         iters += 1
 
     # Visualisation
-    path = construct_path(prev, start, goal)
-    if path:
-        print(visualise(path, cost, room_size))
-    print(f'States explored: {iters}')
+    if (path := construct_path(prev, start, goal)):
+        out_file = f'{os.getcwd()}\\Outputs\\part{[1, 2][part2]}.txt'
+        with open(out_file, 'w') as f:
+            vis = f'{h.__doc__}\n'
+            vis += f'States explored: {iters:,}\n'
+            vis += visualise(path, cost, room_size)
+            f.write(vis)
 
     return cost[goal]
 
