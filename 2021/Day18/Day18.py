@@ -73,8 +73,7 @@ def magnitude(expr: list) -> int:
     match expr:
         case str():
             return magnitude(literal_eval(expr))
-        case list():
-            a, b = expr
+        case [a, b]:
             return 3 * magnitude(a) + 2 * magnitude(b)
         case _:
             return expr
