@@ -2,6 +2,8 @@ from helper import aoc_timer
 from collections import deque
 import itertools as it
 from math import prod
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 @aoc_timer
@@ -13,7 +15,7 @@ def get_input(path):
 
 
 @aoc_timer
-def Day09(grid):
+def Day09(grid, **kwargs):
 
     D = [
         (-1, 0),    # Up
@@ -45,6 +47,31 @@ def Day09(grid):
                     Q.append((rr, cc))
         return len(visited)
 
+    def visualise(grid, **kwargs):
+        '''Plot a heightmap from the grid.'''
+        if not kwargs.get('vis', False):
+            return None
+        G = np.array(grid, dtype=int)
+        X, Y = np.meshgrid(np.arange(C), np.arange(R))
+        Z = G[Y[::-1], X]
+        cmap = kwargs.get('cmap', 'ocean')
+        fig = plt.figure(figsize=kwargs.get('figsize', (10, 10)))
+        match kwargs.get('proj', 'image'):
+            case 'image':
+                ax = fig.add_subplot()
+                plt.imshow(Z, extent=(0, C, 0, R), origin='lower', cmap=cmap)
+            case '2d':
+                ax = fig.add_subplot()
+                plt.contourf(X, Y, Z, 10, cmap=cmap)
+            case '3d':
+                ax = plt.axes(projection='3d')
+                ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
+                                cmap=cmap, edgecolor='none')
+            case _:
+                return None
+        ax.set_axis_off()
+        plt.show()
+
     lows = deque()
     basins = deque()
     for r, c in it.product(range(R), range(C)):
@@ -59,6 +86,8 @@ def Day09(grid):
     p1 = sum(lows)
     p2 = prod(sorted(basins)[-3:])
 
+    visualise(grid, **kwargs)
+
     return p1, p2
 
 
@@ -66,7 +95,7 @@ def Day09(grid):
 def main():
     print("AoC 2021\nDay 09")
     data = get_input('input.txt')
-    p1, p2 = Day09(data)
+    p1, p2 = Day09(data, vis=True, proj='image')
     print("Part 1:", p1)
     print("Part 2:", p2)
 
