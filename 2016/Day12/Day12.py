@@ -46,6 +46,7 @@ def Day12(data: list[str], init=0) -> int:
     return registers['a']
 
 
+# %% Output
 def main():
     print("AoC 2016\nDay 12")
     data = get_input('input.txt')

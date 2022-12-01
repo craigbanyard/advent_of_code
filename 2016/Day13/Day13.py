@@ -1,4 +1,4 @@
-from helper import aoc_timer, Colours
+from helper import aoc_timer, Colours, Grid
 from collections import defaultdict
 import heapq
 import math
@@ -113,12 +113,43 @@ def Day13(data, start, target=None, max_steps=None, astar=False, vis=False):
     return cost[target]
 
 
+# %% Solution using Grid helper class
+class D13(Grid):
+    def __init__(self, data, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.data = data
+
+    def valid(self, node):
+        '''
+        Return True if (x, y) is an open space.
+        Return False if (x, y) is a wall.
+        '''
+        y, x = node
+        if x < 0 or y < 0:
+            return False
+        val = self.data + (x*x + 3*x + 2*x*y + y + y*y)
+        return bin(val).count('1') % 2 == 0
+
+
+def Day13_Grid(data, start, end):
+    grid = D13(data)
+    _, p1 = grid.djikstra(start, end)
+    _, p2 = grid.djikstra(start, end=None, max_cost=50)
+    return p1[end], len(p2)
+
+
+# %% Output
 def main():
     print("AoC 2016\nDay 13")
     data = get_input('input.txt')
     start = (1, 1)
-    print("Part 1:", Day13(data, start, target=(31, 39), astar=True, vis=True))
-    print("Part 2:", Day13(data, start, max_steps=50, vis=True))
+    p1 = Day13(data, start, target=(31, 39), astar=True, vis=True)
+    print("Part 1:", p1, '\n')
+    p2 = Day13(data, start, max_steps=50, vis=True)
+    print("Part 2:", p2)
+    p1_grid, p2_grid = Day13_Grid(data, start, end=(39, 31))
+    assert p1 == p1_grid
+    assert p2 == p2_grid
 
 
 if __name__ == '__main__':
