@@ -6,12 +6,7 @@ class Tests(unittest.TestCase):
     data = Day02.get_input('sample.txt')
 
     def test_get_input(self):
-        expected = [
-            ['A', 'Y'],
-            ['B', 'X'],
-            ['C', 'Z']
-        ]
-        self.assertEqual(self.data, expected)
+        self.assertEqual(self.data, ['A Y', 'B X', 'C Z'])
 
     def test_solve_p1(self):
         result = Day02.solve(self.data, part=1)

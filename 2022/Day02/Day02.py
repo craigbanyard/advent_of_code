@@ -3,49 +3,23 @@ from helper import aoc_timer
 
 @aoc_timer
 def get_input(path):
-    return [line.split() for line in open(path).read().splitlines()]
+    return [line for line in open(path).read().splitlines()]
 
 
 @aoc_timer
 def solve(data, part):
-    W = 6
-    D = 3
-    score = {
-        'A': 1,
-        'B': 2,
-        'C': 3
+    scores = {
+        'A X': {1: 1 + 3, 2: 3 + 0},
+        'A Y': {1: 2 + 6, 2: 1 + 3},
+        'A Z': {1: 3 + 0, 2: 2 + 6},
+        'B X': {1: 1 + 0, 2: 1 + 0},
+        'B Y': {1: 2 + 3, 2: 2 + 3},
+        'B Z': {1: 3 + 6, 2: 3 + 6},
+        'C X': {1: 1 + 6, 2: 2 + 0},
+        'C Y': {1: 2 + 0, 2: 3 + 3},
+        'C Z': {1: 3 + 3, 2: 1 + 6}
     }
-    win = {
-        'A': 'B',
-        'B': 'C',
-        'C': 'A'
-    }
-    lose = {
-        'A': 'C',
-        'B': 'A',
-        'C': 'B'
-    }
-    strategy = {
-        1: {
-            'X': lambda x: 'A',
-            'Y': lambda x: 'B',
-            'Z': lambda x: 'C'
-        },
-        2: {
-            'X': lambda x: lose[x],
-            'Y': lambda x: x,
-            'Z': lambda x: win[x]
-        }
-    }
-    total = 0
-    for p, q in data:
-        play = strategy[part][q](p)
-        if p == play:
-            total += + D
-        elif play == win[p]:
-            total += + W
-        total += score[play]
-    return total
+    return sum(scores[hand][part] for hand in data)
 
 
 # %% Output
