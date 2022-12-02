@@ -6,7 +6,6 @@ class Tests(unittest.TestCase):
     data = Day01.get_input('sample.txt')
 
     def test_get_input(self):
-        result = self.data
         expected = [
             [1000, 2000, 3000],
             [4000],
@@ -14,7 +13,7 @@ class Tests(unittest.TestCase):
             [7000, 8000, 9000],
             [10000]
         ]
-        self.assertEqual(result, expected)
+        self.assertEqual(self.data, expected)
 
     def test_solve_p1(self):
         result = Day01.solve(self.data, n=1)
