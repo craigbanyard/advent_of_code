@@ -2,12 +2,12 @@ from helper import aoc_timer
 
 
 @aoc_timer
-def get_input(path):
+def get_input(path: str) -> list[str]:
     return open(path).read().splitlines()
 
 
 @aoc_timer
-def solve(data, part):
+def solve(data: list[str], part: int) -> int:
     scores = {
         'A X': {1: 1 + 3, 2: 3 + 0},
         'A Y': {1: 2 + 6, 2: 1 + 3},
@@ -23,7 +23,7 @@ def solve(data, part):
 
 
 # %% Output
-def main():
+def main() -> None:
     print("AoC 2022\nDay 02")
     data = get_input('input.txt')
     print("Part 1:", solve(data, part=1))
