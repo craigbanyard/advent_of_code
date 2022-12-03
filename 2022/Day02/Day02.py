@@ -3,7 +3,7 @@ from helper import aoc_timer
 
 @aoc_timer
 def get_input(path):
-    return [line for line in open(path).read().splitlines()]
+    return open(path).read().splitlines()
 
 
 @aoc_timer
