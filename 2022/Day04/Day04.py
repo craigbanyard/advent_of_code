@@ -13,12 +13,10 @@ def get_input(path: str) -> Iterator[list[int]]:
 def solve(data: Iterator[list[int]]) -> tuple[int, int]:
     p1, p2 = 0, 0
     for a, b, c, d in data:
-        s1 = range(a, b + 1)
-        s2 = range(c, d + 1)
-        if (intersection := range(max(a, c), min(b, d) + 1)):
-            p2 += 1
-        if intersection == s1 or intersection == s2:
+        if c >= a and d <= b or a >= c and b <= d:
             p1 += 1
+        if max(a, c) <= min(b, d):
+            p2 += 1
     return p1, p2
 
 
