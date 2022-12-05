@@ -30,10 +30,7 @@ def solve(stack: dict[int, deque], moves: list[list[int]], part1: bool) -> str:
                 move.appendleft(crate)
         for crate in move:
             stack[dest].appendleft(crate)
-    message = ''
-    for crate in sorted(stack.keys()):
-        message += stack[crate].popleft()
-    return message
+    return ''.join(v[0] for _, v in sorted(stack.items()))
 
 
 # %% Output
