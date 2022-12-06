@@ -3,60 +3,35 @@ import unittest
 
 
 class Tests(unittest.TestCase):
-    def test_get_input(self):
-        data = Day06.get_input('sample.txt')
-        self.assertEqual(data, 'mjqjpqmgbljsphdztnvjfqwrcgsmlb')
+    def __init__(self, f, input, output):
+        super(Tests, self).__init__()
+        self.f = f
+        self.input = input
+        self.output = output
 
-    def test_solve_p1_ex1(self):
-        data = 'mjqjpqmgbljsphdztnvjfqwrcgsmlb'
-        result = Day06.solve(data, chunk_size=4)
-        self.assertEqual(result, 7)
+    def runTest(self):
+        self.assertEqual(self.f(*self.input), self.output)
 
-    def test_solve_p1_ex2(self):
-        data = 'bvwbjplbgvbhsrlpgdmjqwftvncz'
-        result = Day06.solve(data, chunk_size=4)
-        self.assertEqual(result, 5)
 
-    def test_solve_p1_ex3(self):
-        data = 'nppdvjthqldpwncqszvftbrmjlhg'
-        result = Day06.solve(data, chunk_size=4)
-        self.assertEqual(result, 6)
-
-    def test_solve_p1_ex4(self):
-        data = 'nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg'
-        result = Day06.solve(data, chunk_size=4)
-        self.assertEqual(result, 10)
-
-    def test_solve_p1_ex5(self):
-        data = 'zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw'
-        result = Day06.solve(data, chunk_size=4)
-        self.assertEqual(result, 11)
-
-    def test_solve_p2_ex1(self):
-        data = 'mjqjpqmgbljsphdztnvjfqwrcgsmlb'
-        result = Day06.solve(data, chunk_size=14)
-        self.assertEqual(result, 19)
-
-    def test_solve_p2_ex2(self):
-        data = 'bvwbjplbgvbhsrlpgdmjqwftvncz'
-        result = Day06.solve(data, chunk_size=14)
-        self.assertEqual(result, 23)
-
-    def test_solve_p2_ex3(self):
-        data = 'nppdvjthqldpwncqszvftbrmjlhg'
-        result = Day06.solve(data, chunk_size=14)
-        self.assertEqual(result, 23)
-
-    def test_solve_p2_ex4(self):
-        data = 'nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg'
-        result = Day06.solve(data, chunk_size=14)
-        self.assertEqual(result, 29)
-
-    def test_solve_p2_ex5(self):
-        data = 'zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw'
-        result = Day06.solve(data, chunk_size=14)
-        self.assertEqual(result, 26)
+def suite():
+    test_cases = [
+        (Day06.get_input, ('sample.txt', ), 'mjqjpqmgbljsphdztnvjfqwrcgsmlb'),
+        (Day06.solve, ('mjqjpqmgbljsphdztnvjfqwrcgsmlb', 4), 7),
+        (Day06.solve, ('bvwbjplbgvbhsrlpgdmjqwftvncz', 4), 5),
+        (Day06.solve, ('nppdvjthqldpwncqszvftbrmjlhg', 4), 6),
+        (Day06.solve, ('nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg', 4), 10),
+        (Day06.solve, ('zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw', 4), 11),
+        (Day06.solve, ('mjqjpqmgbljsphdztnvjfqwrcgsmlb', 14), 19),
+        (Day06.solve, ('bvwbjplbgvbhsrlpgdmjqwftvncz', 14), 23),
+        (Day06.solve, ('nppdvjthqldpwncqszvftbrmjlhg', 14), 23),
+        (Day06.solve, ('nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg', 14), 29),
+        (Day06.solve, ('zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw', 14), 26),
+    ]
+    suite = unittest.TestSuite()
+    suite.addTests(Tests(f, input, output)
+                   for f, input, output in test_cases)
+    return suite
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.TextTestRunner().run(suite())
