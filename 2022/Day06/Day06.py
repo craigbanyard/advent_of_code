@@ -8,9 +8,9 @@ def get_input(path: str) -> str:
 
 @aoc_timer
 def solve(data: str, chunk_size: int) -> int:
-    for idx in range(len(data)):
+    for idx in range(len(data) - chunk_size):
         chunk = data[idx:idx+chunk_size]
-        if len(set(chunk)) == len(chunk):
+        if len(set(chunk)) == chunk_size:
             return idx + chunk_size
     return 0
 
