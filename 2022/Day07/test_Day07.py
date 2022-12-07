@@ -3,7 +3,7 @@ import unittest
 
 
 class Tests(unittest.TestCase):
-    data = Day07.get_input('sample.txt')
+    data = list(Day07.get_input('sample.txt'))
     dirs, tree = Day07.construct_tree(data)
 
     def test_get_input(self):
@@ -74,6 +74,14 @@ class Tests(unittest.TestCase):
 
     def test_solve_p2(self):
         _, result = Day07.solve(self.data)
+        self.assertEqual(result, 24933642)
+    
+    def test_solve_alt_p1(self):
+        result, _ = Day07.solve_alt(self.data)
+        self.assertEqual(result, 95437)
+
+    def test_solve_alt_p2(self):
+        _, result = Day07.solve_alt(self.data)
         self.assertEqual(result, 24933642)
 
 
