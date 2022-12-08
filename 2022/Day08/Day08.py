@@ -20,10 +20,10 @@ def solve(data: list[list[int]]) -> tuple[int, int]:
         Return generators for trees in each direction
         starting from (r, c).
         '''
-        yield range(r-1, -1, -1)    # Up
-        yield range(r+1, R)         # Down
-        yield range(c-1, -1, -1)    # Left
-        yield range(c+1, C)         # Right
+        yield range(r - 1, -1, -1)  # Up
+        yield range(r + 1, R)       # Down
+        yield range(c - 1, -1, -1)  # Left
+        yield range(c + 1, C)       # Right
 
     p1, p2 = 0, 0
     for r, c in it.product(range(R), range(C)):
@@ -31,11 +31,12 @@ def solve(data: list[list[int]]) -> tuple[int, int]:
         score = [0] * 4
         if r > 0 and c > 0:
             for d, rng in enumerate(directions(r, c)):
-                v = d < 2
+                vertical = d < 2
                 for dr in rng:
                     score[d] += 1
-                    compare = data[dr if v else r][dr if not v else c]
-                    if data[r][c] <= compare:
+                    rr = dr if vertical else r
+                    cc = c if vertical else dr
+                    if data[r][c] <= data[rr][cc]:
                         vis[d] = False
                         break
         if any(vis):
