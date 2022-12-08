@@ -1,5 +1,7 @@
 from helper import aoc_timer
-from math import prod
+import itertools as it
+import math
+from typing import Iterator
 
 
 @aoc_timer
@@ -12,35 +14,40 @@ def get_input(path: str) -> list[list[int]]:
 def solve(data: list[list[int]]) -> tuple[int, int]:
     R = len(data)
     C = len(data[0])
+
+    def directions(r: int, c: int) -> Iterator[range]:
+        '''
+        Return generators for trees in each direction
+        starting from (r, c).
+        '''
+        yield range(r-1, -1, -1)    # Up
+        yield range(r+1, R)         # Down
+        yield range(c-1, -1, -1)    # Left
+        yield range(c+1, C)         # Right
+
+    def tree_height(idx: int, r: int, c: int, dr: int) -> int:
+        '''
+        Return the tree height for comparison with the
+        current tree at (r, c).
+        '''
+        if idx < 2:
+            return data[dr][c]      # Up/Down
+        return data[r][dr]          # Left/Right
+
     p1, p2 = 0, 0
-    for r in range(R):
-        for c in range(C):
-            vis = [True] * 4
-            score = [0] * 4
-            if r > 0 and c > 0:
-                for rr in range(r - 1, -1, -1):
-                    score[0] += 1
-                    if data[r][c] <= data[rr][c]:
-                        vis[0] = False
+    for r, c in it.product(range(R), range(C)):
+        vis = [True] * 4
+        score = [0] * 4
+        if r > 0 and c > 0:
+            for d, rng in enumerate(directions(r, c)):
+                for dr in rng:
+                    score[d] += 1
+                    if data[r][c] <= tree_height(d, r, c, dr):
+                        vis[d] = False
                         break
-                for rr in range(r + 1, R):
-                    score[1] += 1
-                    if data[r][c] <= data[rr][c]:
-                        vis[1] = False
-                        break
-                for cc in range(c - 1, -1, -1):
-                    score[2] += 1
-                    if data[r][c] <= data[r][cc]:
-                        vis[2] = False
-                        break
-                for cc in range(c + 1, C):
-                    score[3] += 1
-                    if data[r][c] <= data[r][cc]:
-                        vis[3] = False
-                        break
-            if any(vis):
-                p1 += 1
-            p2 = max(p2, prod(score))
+        if any(vis):
+            p1 += 1
+        p2 = max(p2, math.prod(score))
     return p1, p2
 
 
