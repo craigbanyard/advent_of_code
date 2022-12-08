@@ -75,7 +75,7 @@ class Tests(unittest.TestCase):
     def test_solve_p2(self):
         _, result = Day07.solve(self.data)
         self.assertEqual(result, 24933642)
-    
+
     def test_solve_alt_p1(self):
         result, _ = Day07.solve_alt(self.data)
         self.assertEqual(result, 95437)
