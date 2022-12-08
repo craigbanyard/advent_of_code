@@ -25,24 +25,17 @@ def solve(data: list[list[int]]) -> tuple[int, int]:
         yield range(c-1, -1, -1)    # Left
         yield range(c+1, C)         # Right
 
-    def tree_height(idx: int, r: int, c: int, dr: int) -> int:
-        '''
-        Return the tree height for comparison with the
-        current tree at (r, c).
-        '''
-        if idx < 2:
-            return data[dr][c]      # Up/Down
-        return data[r][dr]          # Left/Right
-
     p1, p2 = 0, 0
     for r, c in it.product(range(R), range(C)):
         vis = [True] * 4
         score = [0] * 4
         if r > 0 and c > 0:
             for d, rng in enumerate(directions(r, c)):
+                v = d < 2
                 for dr in rng:
                     score[d] += 1
-                    if data[r][c] <= tree_height(d, r, c, dr):
+                    compare = data[dr if v else r][dr if not v else c]
+                    if data[r][c] <= compare:
                         vis[d] = False
                         break
         if any(vis):
