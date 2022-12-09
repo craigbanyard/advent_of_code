@@ -51,8 +51,7 @@ def solve(data: list[tuple[str, int]], knots: int) -> int:
         for _ in range(n):
             rope[0] += D[d]
             for k, (h, t) in enumerate(zip(rope, rope[1:]), start=1):
-                if not adjacent(h, t):
-                    rope[k] += follow(h, t)
+                rope[k] += follow(h, t)
             visited.add(rope[-1])
     return len(visited)
 
