@@ -1,10 +1,11 @@
 from helper import aoc_timer
+from typing import Iterator
 
 
 @aoc_timer
-def get_input(path: str) -> list[tuple[str, int]]:
-    return [(d, int(n)) for d, n in [line.split()
-            for line in open(path).read().splitlines()]]
+def get_input(path: str) -> Iterator[tuple[str, int]]:
+    yield from [(d, int(n)) for d, n in [line.split()
+                for line in open(path).read().splitlines()]]
 
 
 def sign(n: int) -> int:
@@ -21,7 +22,7 @@ def adjacent(h: complex, t: complex) -> bool:
 
 def follow(h: complex, t: complex) -> complex:
     '''Return the distance t must move to follow h.'''
-    move = 0+0j
+    move = 0
     if adjacent(h, t):
         return move
     if h.real == t.real:
@@ -37,31 +38,34 @@ def follow(h: complex, t: complex) -> complex:
 
 
 @aoc_timer
-def solve(data: list[tuple[str, int]], knots: int) -> int:
+def solve(data: Iterator[tuple[str, int]],
+          knots: list[int]) -> tuple[int, ...]:
     D = {
-        'U': 0 + 1j,
-        'R': 1 + 0j,
-        'D': 0 - 1j,
-        'L': -1 + 0j,
+        'U': 1j,
+        'R': 1,
+        'D': -1j,
+        'L': -1,
     }
-    s = 0 + 0j
-    rope = [s] * knots
-    visited = set([s])
+    s = 0
+    rope = [s] * max(knots)
+    visited = {k - 1: set([s]) for k in knots}
     for d, n in data:
         for _ in range(n):
             rope[0] += D[d]
             for k, (h, t) in enumerate(zip(rope, rope[1:]), start=1):
                 rope[k] += follow(h, t)
-            visited.add(rope[-1])
-    return len(visited)
+                if k in visited:
+                    visited[k].add(rope[k])
+    return tuple(len(v) for _, v in visited.items())
 
 
 # %% Output
 def main() -> None:
     print("AoC 2022\nDay 09")
     data = get_input('input.txt')
-    print("Part 1:", solve(data, knots=2))
-    print("Part 2:", solve(data, knots=10))
+    p1, p2 = solve(data, knots=[2, 10])
+    print("Part 1:", p1)
+    print("Part 2:", p2)
 
 
 if __name__ == '__main__':
