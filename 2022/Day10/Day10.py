@@ -8,21 +8,19 @@ def get_input(path: str) -> Iterator[str]:
 
 
 @aoc_timer
-def solve(data: Iterator[str], **kwargs: dict[str, str]) -> tuple[int, str]:
+def solve(data: Iterator[str], **kwargs: str) -> tuple[int, str]:
     global p1, p2
 
     x = 1
     cycle = 1
-    periods = range(20, 221, 40)
     p1, p2 = 0, '\n'
-    Q = []
     W = 40
     ON, OFF = kwargs.get('on', '#'), kwargs.get('off', '.')
 
     def process():
         '''Perform clock cycle operation.'''
         global p1, p2
-        if cycle in periods:
+        if cycle % W == 20:
             p1 += x * cycle
         if x - 1 <= (cycle - 1) % W <= x + 1:
             p2 += ON
@@ -31,15 +29,13 @@ def solve(data: Iterator[str], **kwargs: dict[str, str]) -> tuple[int, str]:
         if cycle % W == 0:
             p2 += '\n'
 
-    for op in data:
+    for instr in data:
         process()
-        if op != 'noop':
-            _, n = op.split()
-            Q.append(int(n))
-        while Q:
+        if instr != 'noop':
+            _, n = instr.split()
             cycle += 1
             process()
-            x += Q.pop()
+            x += int(n)
         cycle += 1
     return p1, p2
 
@@ -48,7 +44,7 @@ def solve(data: Iterator[str], **kwargs: dict[str, str]) -> tuple[int, str]:
 def main() -> None:
     print("AoC 2022\nDay 10")
     data = get_input('input.txt')
-    p1, p2 = solve(data, on='#', off=' ')
+    p1, p2 = solve(data, on='█', off=' ')
     print("Part 1:", p1)
     print("Part 2:", p2)
 
