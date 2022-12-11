@@ -40,16 +40,31 @@ class Tests(unittest.TestCase):
                 '    If false: throw to monkey 1'
             ]
         ]
-        expected = ['\n'.join(line for line in notes) for notes in expected]
-        self.assertListEqual(self.data, expected)
+        expected = [Day11.Monkey(notes) for notes in expected]
+        self.assertEqual(self.data, expected)
+
+    def test_monkey_business_sample1(self):
+        test_data = [101, 95, 7, 105]
+        result = Day11.monkey_business(test_data)
+        self.assertEqual(result, 10605)
+
+    def test_monkey_business_sample2(self):
+        test_data = [52166, 47830, 1938, 52013]
+        result = Day11.monkey_business(test_data)
+        self.assertEqual(result, 2713310158)
+
+    def test_monkey_business_n3(self):
+        test_data = [1, 2, 3, 4, 5]
+        result = Day11.monkey_business(test_data, n=3)
+        self.assertEqual(result, 60)
 
     def test_solve_p1(self):
         result = Day11.solve(self.data, rounds=20, wrc=3)
         self.assertEqual(result, 10605)
 
     def test_solve_p2(self):
-        result = Day11.solve(self.data, rounds=1000, wrc=1)
-        self.assertEqual(result, 27019168)
+        result = Day11.solve(self.data, rounds=10000, wrc=1)
+        self.assertEqual(result, 2713310158)
 
 
 if __name__ == '__main__':
