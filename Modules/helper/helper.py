@@ -230,8 +230,8 @@ class Grid:
         grid = ''
         _marker = f'{Colours.BOLD + Colours.fg.CYAN}O{Colours.ENDC}'
         marker = kwargs.get('marker', _marker)
-        for r in range(min_r, max_r + 1):
-            for c in range(min_c, max_c + 1):
+        for r in range(min_r, max_r):
+            for c in range(min_c, max_c):
                 if (r, c) in path:
                     grid += marker
                 elif self.valid((r, c)):
