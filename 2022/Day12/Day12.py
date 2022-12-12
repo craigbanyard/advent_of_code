@@ -42,7 +42,6 @@ class Heightmap(Grid):
         for r, c in it.product(range(self._R), range(self._C)):
             if self.G[r][c] == letter:
                 yield (r, c)
-        return None
 
 
 @aoc_timer
