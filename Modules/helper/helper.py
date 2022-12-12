@@ -4,6 +4,7 @@ import heapq
 import math
 import numpy as np
 from time import perf_counter_ns
+from typing import Iterator
 
 
 class Colours:
@@ -75,6 +76,9 @@ class Grid:
         self.G = kwargs.get('G', [[]])
         self._R = len(self.G)
         self._C = len(self.G[0])
+        self.grid_dict = {(r, c): self.G[r][c]
+                          for c in range(self._C)
+                          for r in range(self._R)}
         self._space = kwargs.get('space', '.')
         self._wall = kwargs.get('wall', '#')
         if kwargs.get('diag', False):
@@ -91,6 +95,51 @@ class Grid:
                     out += self._wall
             out += '\n'
         return out
+
+    def items(self) -> dict:
+        '''
+        Allow simple iteration over the grid coordinates and
+        values.
+        '''
+        return self.grid_dict.items()
+
+    def where(self, value) -> Iterator[tuple]:
+        '''Return a generator of nodes with the given value.'''
+        for (r, c), v in self.items():
+            if v == value:
+                yield (r, c)
+
+    def _init_traversal(self, start) -> list[tuple]:
+        '''Initialise start position(s) for grid traversal.'''
+        match start:
+            case (int(), int()):
+                return [start]
+            case [(int(), int()), *_]:
+                return start
+            case value:
+                return list(self.where(value))
+
+    def _init_cost_dict(self, start_nodes) -> dict[tuple, int]:
+        '''Initialise cost dictionary for grid traversal.'''
+        return defaultdict(lambda: math.inf, {s: 0 for s in start_nodes})
+
+    def _traversal_complete(self, node, cost, end, max_cost) -> bool:
+        '''
+        Determine whether the end conditions of the traversal
+        are satisfied.
+        '''
+        if cost[node] >= max_cost:
+            return True
+        match end:
+            case int(), int():
+                return node == end
+            case (int(), int()), *_:
+                return node in end
+            case None:
+                return False
+            case value:
+                r, c = node
+                return self.G[r][c] == value
 
     def valid(self, node) -> bool:
         '''Determine whether a given node is traversable.'''
@@ -114,18 +163,21 @@ class Grid:
         return 1
 
     def h(self, a, b) -> int:
-        '''A* heuristic for moving between nodes a and b.'''
+        '''
+        A* heuristic for moving between nodes a and b.
+        Default implementation is Manhattan distance.
+        '''
         return sum(abs(p - q) for p, q in zip(a, b))
 
-    def bfs(self, start, end, **kwargs) -> tuple[dict, dict]:
+    def bfs(self, start, end, max_cost=math.inf) -> tuple[dict, dict]:
         '''Perform breadth-first search (BFS) on the grid.'''
         visited = {}
-        cost = defaultdict(lambda: math.inf, {start: 0})
-        Q = deque([(start)])
-        max_cost = kwargs.get('max_cost', math.inf)
+        start_nodes = self._init_traversal(start)
+        cost = self._init_cost_dict(start_nodes)
+        Q = deque([*start_nodes])
         while Q:
             pos = Q.popleft()
-            if pos == end or cost[pos] >= max_cost:
+            if self._traversal_complete(pos, cost, end, max_cost):
                 break
             for new_pos in self.neighbours(pos):
                 new_cost = cost[pos] + self.cost(new_pos)
@@ -135,14 +187,14 @@ class Grid:
                     Q.append(new_pos)
         return visited, cost
 
-    def dfs(self, start, end, **kwargs) -> tuple[dict, dict]:
+    def dfs(self, start, end, max_cost=math.inf) -> tuple[dict, dict]:
         '''Perform depth-first search (DFS) on the grid.'''
         visited = {}
-        cost = defaultdict(lambda: math.inf, {start: 0})
-        max_cost = kwargs.get('max_cost', math.inf)
+        start_nodes = self._init_traversal(start)
+        cost = self._init_cost_dict(start_nodes)
 
         def _dfs(visited, cost, pos):
-            if pos == end or cost[pos] >= max_cost:
+            if self._traversal_complete(pos, cost, end, max_cost):
                 return visited, cost
             for new_pos in self.neighbours(pos):
                 new_cost = cost[pos] + self.cost(new_pos)
@@ -152,17 +204,22 @@ class Grid:
                     return _dfs(visited, cost, new_pos)
             return visited, cost
 
-        return _dfs(visited, cost, start)
+        for start in start_nodes:
+            # Probably needs revising in light of multiple starts...
+            return _dfs(visited, cost, start)
 
-    def djikstra(self, start, end, h=lambda a, b: 0, **kwargs) -> tuple[dict, dict]:
+    def djikstra(self, start, end, h=lambda a, b: 0,
+                 max_cost=math.inf) -> tuple[dict, dict]:
         '''Perform Djikstra's algorithm on the grid.'''
-        cost = defaultdict(lambda: math.inf, {start: 0})
         visited = {}
-        heapq.heappush(Q := [], (0, start))
-        max_cost = kwargs.get('max_cost', math.inf)
+        start_nodes = self._init_traversal(start)
+        cost = self._init_cost_dict(start_nodes)
+        Q = []
+        for start in start_nodes:
+            heapq.heappush(Q, (0, start))
         while Q:
             _, pos = heapq.heappop(Q)
-            if pos == end or cost[pos] >= max_cost:
+            if self._traversal_complete(pos, cost, end, max_cost):
                 break
             for new_pos in self.neighbours(pos):
                 new_cost = cost[pos] + self.cost(new_pos)
@@ -173,9 +230,39 @@ class Grid:
                     heapq.heappush(Q, (priority, new_pos))
         return visited, cost
 
-    def astar(self, start, end, **kwargs) -> tuple[dict, dict]:
+    def astar(self, start, end, h=None, max_cost=math.inf) -> tuple[dict, dict]:
         '''Perform A* search on the grid.'''
-        return self.djikstra(start, end, h=self.h, **kwargs)
+        if h is None:
+            h = self.h
+        return self.djikstra(start, end, h, max_cost)
+
+    def run_algorithm(self, start, end, algorithm) -> tuple[dict, dict]:
+        '''
+        Run the specified algorithm for the specified start and
+        end nodes.
+        '''
+        algorithms = {
+            'bfs': self.bfs,
+            'dfs': self.dfs,
+            'djikstra': self.djikstra,
+            'astar': self.astar
+        }
+        f = algorithms.get(algorithm.lower(), lambda a, b: ({}, {}))
+        return f(start, end)
+
+    def shortest_path(self, start, end, algorithm) -> int:
+        '''
+        Return the shortest path from start to end as computed
+        by the specified algorithm.
+        '''
+        _, cost = self.run_algorithm(start, end, algorithm)
+        match end:
+            case int(), int():
+                return cost[end]
+            case int(), int(), *_:
+                return min(cost[e] for e in end)
+            case value:
+                return min(cost[v] for v in self.where(value))
 
     def construct_path(self, start, end, visited) -> set:
         '''
@@ -196,21 +283,14 @@ class Grid:
                 return path
         return set()
 
-    def optimal_path(self, start, end, algorithm, **kwargs) -> set:
+    def optimal_path(self, start, end, algorithm) -> set:
         '''
         Return a set of nodes (r, c) that comprise the
         optimal path from start to end determined by
         performing the specified search algorithm.
         If end is None, return the set of visited nodes.
         '''
-        algorithms = {
-            'bfs': self.bfs,
-            'dfs': self.dfs,
-            'djikstra': self.djikstra,
-            'astar': self.astar
-        }
-        f = algorithms.get(algorithm.lower(), lambda a, b: ({}, {}))
-        visited, _ = f(start, end, **kwargs)
+        visited, _ = self.run_algorithm(start, end, algorithm)
         return self.construct_path(start, end, visited)
 
     def visualise_path(self, path, **kwargs) -> str | None:
