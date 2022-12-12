@@ -1,11 +1,9 @@
 from helper import aoc_timer, Grid
 from string import ascii_lowercase as letters
-import itertools as it
-from typing import Iterator
 
 
 class Heightmap(Grid):
-    E = {v: k for k, v in enumerate(letters)}
+    E = {ltr: idx for idx, ltr in enumerate(letters)}
     E['S'] = E['a']
     E['E'] = E['z']
 
@@ -34,45 +32,17 @@ class Heightmap(Grid):
                 if self.E[ee] - self.E[e] <= 1:
                     yield (rr, cc)
 
-    def find(self, letter: str) -> Iterator[tuple[int, int]]:
-        '''
-        New method for 2022 Day 12:
-        Return a generator of nodes with the value letter.
-        '''
-        for r, c in it.product(range(self._R), range(self._C)):
-            if self.G[r][c] == letter:
-                yield (r, c)
-
 
 @aoc_timer
 def get_input(path: str) -> list[list[str]]:
     return [[*line] for line in open(path).read().splitlines()]
 
 
-def shortest_path(G: Heightmap, start: tuple[int, int],
-                  end: tuple[int, int]) -> int:
-    '''
-    Return the shortest path from start to end using
-    breadth-first search (BFS) on the grid, G.
-    There is no need for Djikstra (or A*) here since
-    the movement cost is constant.
-    '''
-    _, cost = G.bfs(start, end)
-    return cost[end]
-
-
 @aoc_timer
 def solve(data: list[list[str]]) -> tuple[int, int]:
     G = Heightmap(G=data)
-    start = next(G.find('S'), (0, 0))
-    end = next(G.find('E'), (G._R, G._C))
-    p1 = shortest_path(G, start, end)
-    p2 = p1
-    for start in G.find('a'):
-        # Brute force. If we override the pathing algorithm
-        # to account for already computed paths, we can do
-        # this part much more efficiently.
-        p2 = min(p2, shortest_path(G, start, end))
+    p1 = G.shortest_path('S', 'E', 'bfs')
+    p2 = G.shortest_path('a', 'E', 'bfs')
     return p1, p2
 
 
