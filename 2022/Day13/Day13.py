@@ -1,5 +1,4 @@
 from helper import aoc_timer
-from copy import deepcopy
 from dataclasses import dataclass
 import math
 
@@ -20,9 +19,7 @@ def get_input(path: str) -> list:
     return [eval(expr) for expr in lines.replace('\n\n', '\n').splitlines()]
 
 
-def lt_recurse(a: int | list,
-               b: int | list,
-               result: bool | None = None) -> bool:
+def lt(a: int | list, b: int | list, result: bool | None = None) -> bool:
     '''Recursively compare a and b to determine whether a < b.'''
     if result is not None:
         return result
@@ -33,14 +30,16 @@ def lt_recurse(a: int | list,
             if a > b:
                 result = False
         case list(), list():
-            while b and result is None:
-                result = lt_recurse(a.pop(0), b.pop(0), result) if a else True
-            if a and result is None:
+            idx = 0
+            while idx < len(b) and result is None:
+                result = lt(a[idx], b[idx], result) if idx < len(a) else True
+                idx += 1
+            if idx < len(a) and result is None:
                 result = False
         case int(), list():
-            result = lt_recurse([a], b, result)
+            result = lt([a], b, result)
         case list(), int():
-            result = lt_recurse(a, [b], result)
+            result = lt(a, [b], result)
     return result
 
 
@@ -52,7 +51,7 @@ class Packet:
         try:
             return self.value < other.value
         except TypeError:
-            return lt_recurse(deepcopy(self.value), deepcopy(other.value))
+            return lt(self.value, other.value)
 
 
 @aoc_timer
