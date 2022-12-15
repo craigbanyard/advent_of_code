@@ -398,6 +398,18 @@ def aoc_timer(func=None, *, repeat=1, metric=min, **margs):
     return wrapper_timer
 
 
+def sign(n: int) -> int:
+    '''
+    Return the sign of integer n:
+      if n < 0:  -1
+      if n == 0:  0
+      if n > 0:   1
+    '''
+    if not n:
+        return 0
+    return n // abs(n)
+
+
 def main():
     pass
 
