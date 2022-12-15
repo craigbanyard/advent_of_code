@@ -113,12 +113,12 @@ def solve(data: Iterator[list[tuple[int, int]]],
             if vis:
                 print(draw(R - floor, S, theme))
         S.add(s)
-        if SOURCE in R or SOURCE in S:
+        if SOURCE in S:
             p2 = t + 1
             if vis:
                 print(draw(R, S, theme))
             return p1, p2
-    return None
+    return 0, 0
 
 
 # %% Output
