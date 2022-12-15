@@ -1,4 +1,5 @@
 from helper import aoc_timer
+from ast import literal_eval
 from dataclasses import dataclass
 import math
 
@@ -16,7 +17,7 @@ def get_input(path: str) -> list:
     with open(path) as f:
         lines = f.read()
         assert string_safe(lines), f'Potentially unsafe eval: {f}'
-    return [eval(expr) for expr in lines.replace('\n\n', '\n').splitlines()]
+    return [literal_eval(expr) for expr in lines.replace('\n\n', '\n').splitlines()]
 
 
 def lt(a: int | list, b: int | list, result: bool | None = None) -> bool:
