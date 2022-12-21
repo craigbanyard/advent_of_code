@@ -19,7 +19,7 @@ def solve(data: dict[str: list[str]], part1: bool = True) -> int:
     }
 
     def yell(monkey):
-        '''Can't use DP since Part 2 invalidataes the cache.'''
+        '''Cannott use DP since Part 2 invalidataes the cache.'''
         match data[monkey]:
             case [n]:
                 return int(n)
@@ -30,8 +30,6 @@ def solve(data: dict[str: list[str]], part1: bool = True) -> int:
 
     def depends(m1, m2):
         '''Determine whether m1 result depends on m2.'''
-        if m1 == m2:
-            return True
         match data[m1]:
             case [_]:
                 return False
@@ -55,9 +53,9 @@ def solve(data: dict[str: list[str]], part1: bool = True) -> int:
     # search on M1 to find n.
     # These observations do not hold for the sample input, so it
     # is assumed that they do not necessarily hold for all inputs,
-    # so they have been ignored.
+    # so they have been ignored for the final solution.
 
-    # Determine how the R moves with changes in n
+    # Determine how R moves with changes in n
     lo, hi = 0, 1e15
     data['humn'] = [lo]
     result_lo = yell(m1) - yell(m2)
@@ -72,16 +70,10 @@ def solve(data: dict[str: list[str]], part1: bool = True) -> int:
         result = yell(m1) - yell(m2)
         if result == 0:
             return int(n)
-        if result > 0:
-            if traj == 1:
-                lo = n
-            else:
-                hi = n
+        if sign(result) == traj:
+            lo = n
         else:
-            if traj == 1:
-                hi = n
-            else:
-                lo = n
+            hi = n
 
     return None
 
