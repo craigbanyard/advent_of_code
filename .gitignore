@@ -1,6 +1,3 @@
-# Temp boilerplate AoC files
-DayXX/
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
