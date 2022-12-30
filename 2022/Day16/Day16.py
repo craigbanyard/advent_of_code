@@ -106,16 +106,16 @@ def bfs(graph: dict[str, dict[str, int]], V: dict[str, int],
 def solve(data, elephant_threshold: int = 0) -> tuple[int, int]:
     _, V = data
     graph = prune(data, start='AA')
-    p1 = max(bfs(graph, V, time_limit=30).values())
+    p1 = max(dfs(graph, V, time_limit=30).values())
     p2 = 0
     # Optimisation: filter out paths that release less than a given
     # threshold pressure amount, since we assume that the elephant
     # would not be able to open enough valves to hit the required
     # maximum pressure release if we are below this threshold.
-    visited = {k: v for k, v in bfs(graph, V, time_limit=26).items()
+    visited = {k: v for k, v in dfs(graph, V, time_limit=26).items()
                if v > elephant_threshold}
     for (p, a), (q, b) in it.combinations(visited.items(), 2):
-        if not p & q:
+        if p.isdisjoint(q):
             p2 = max(p2, a + b)
     return p1, p2
 
