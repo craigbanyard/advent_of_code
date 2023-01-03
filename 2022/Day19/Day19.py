@@ -1,7 +1,9 @@
 from helper import aoc_timer
 from collections import deque
+import heapq
+import operator as op
 import re
-from typing import Iterator
+from typing import Callable, Iterator
 
 
 @aoc_timer
@@ -19,30 +21,66 @@ def get_input(path: str) -> list:
     return B
 
 
-def buildable(robots: tuple, resources: tuple,
-              blueprint: tuple, production_cap: tuple) -> Iterator:
+def process_resources(r1: tuple, r2: tuple,
+                      operation: Callable = op.add) -> tuple:
+    '''Perform element-wise operation on two tuples.'''
+    return tuple(operation(a, b) for a, b in zip(r1, r2))
+
+
+def wait(state: tuple, duration: int = 1) -> tuple:
     '''
-    Return a generator of buildable robots (by index) and the
-    remaining resources after building this robot. Will never
-    suggest building a robot if this would take the production
-    rate for that resource above the maximum required per
-    minute (for all robots except geode-cracking robots).
+    Wait a single timestep without building any new robots.
     '''
+    robots, resources, time = state
+    for _ in range(duration):
+        new_resources = process_resources(robots, resources)
+        time += 1
+    return (robots, new_resources, time)
+
+
+def build(state: tuple, blueprint: tuple,
+          production_cap: tuple, time_limit: int) -> Iterator:
+    '''
+    Return a generator of newly built robots (by index), the
+    remaining resources after building, and the new time.
+    Will never suggest building a robot if this would take the
+    production rate for that resource above the maximum required
+    per minute (for all robots except geode-cracking robots).
+    Subject to the above restriction, increments resources (and
+    time) until each new robot can be built.
+    If close to the time limit, allow incrementing resources
+    without building any additional robots, as these may be
+    ineffectual.
+    This cuts down on the number of states that need to be
+    explored.
+    '''
+    robots, resources, time = state
+    if (time_remaining := time_limit - time) < 2:
+        yield wait(state, duration=time_remaining)
+        return None
     for idx, robot in enumerate(blueprint):
         if robots[idx] > production_cap[idx] and idx < 3:
-            break
-        remaining = []
-        for owned, cost in zip(resources, robot):
-            if (r := owned - cost) < 0:
-                break
-            remaining.append(r)
+            continue
+        if any(process_resources(robots, robot, lambda a, b: b and not a)):
+            # Cannot possibly build this robot without first building
+            # other robots
+            continue
+        new_time = time
+        new_res = resources
+        while (any(process_resources(robot, new_res, op.gt))
+               and new_time < time_limit - 1):
+            # Gather more resources until we can afford this robot
+            _, new_res, new_time = wait((robots, new_res, new_time))
+        # Build the new robot if possible
+        if all(new_res := process_resources(new_res, robot, op.sub)) >= 0:
+            add_robot = tuple(1 if r == idx else 0 for r in range(4))
+            new_robots = process_resources(robots, add_robot)
         else:
-            yield idx, tuple(remaining)
-
-
-def update_resources(r1: tuple, r2: tuple) -> tuple:
-    '''Perform element-wise addition on two tuples.'''
-    return tuple(a + b for a, b in zip(r1, r2))
+            new_robots = robots
+        # Increment time and resources for existing robots
+        _, new_res, new_time = wait((robots, new_res, new_time))
+        # Yield new state
+        yield (new_robots, new_res, new_time)
 
 
 @aoc_timer
@@ -50,13 +88,16 @@ def solve(data: list, time_limit: int = 24, part2: bool = False) -> int:
 
     def prune(state: tuple, visited: dict, best: int) -> bool:
         '''Determine whether to prune the current branch.'''
-        _, resources, time = state
+        robots, resources, time = state
         if time >= time_limit:
             return True
         if state in visited:
             return True
-        geodes = resources[-1]
-        if time_limit - time < best - geodes:
+        geode_robots = robots[-1]
+        open_geodes = resources[-1]
+        n = time_limit - time
+        max_crackable = n * (n - 1) // 2 + geode_robots * n
+        if max_crackable + open_geodes < best:
             return True
         return False
 
@@ -71,21 +112,42 @@ def solve(data: list, time_limit: int = 24, part2: bool = False) -> int:
         Q = deque([(start)])
         while Q:
             state = Q.popleft()
-            robots, resources, time = state
+            _, resources, time = state
             if resources[-1] > best:
                 best = resources[-1]
                 print(f'New best: {best} @ minute {time}')
             if prune(state, visited, best):
                 continue
             visited[state] = resources[-1]
-            build_state = robots, resources, blueprint, production_cap
-            for new_robot, remain_res in buildable(*build_state):
-                new_robots = list(robots)
-                new_robots[new_robot] += 1
-                new_resources = update_resources(robots, remain_res)
-                Q.append((tuple(new_robots), new_resources, time + 1))
-            add_resources = update_resources(robots, resources)
-            Q.append((robots, add_resources, time + 1))
+            for new_state in build(state, blueprint, production_cap, time_limit):
+                Q.append((new_state))
+        print(f'Geodes: {best}')
+        return best
+
+    def djikstra(start: tuple, blueprint: tuple) -> int:
+        '''
+        Perform Djikstra's algorithm on the blueprint to calculate
+        the maximum crackable geodes. Current implementation is
+        slower than BFS.
+        '''
+        best = 0
+        visited = {}
+        production_cap = tuple(max(r) for r in zip(*blueprint))
+        Q = deque([(start)])
+        heapq.heappush(Q := [], (0, start))
+        while Q:
+            _, state = heapq.heappop(Q)
+            _, resources, time = state
+            if resources[-1] > best:
+                best = resources[-1]
+                print(f'New best: {best} @ minute {time}')
+            if prune(state, visited, best):
+                continue
+            visited[state] = resources[-1]
+            for new_state in build(state, blueprint, production_cap, time_limit):
+                _, resources, t = new_state
+                priority = tuple(([-r for r in resources[:0:-1]], time_limit - t))
+                heapq.heappush(Q, (priority, new_state))
         print(f'Geodes: {best}')
         return best
 
