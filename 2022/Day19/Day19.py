@@ -97,7 +97,7 @@ def main() -> None:
     print("AoC 2022\nDay 19")
     data = get_input('input.txt')
     print("Part 1:", solve(data))
-    print("Part 1:", solve(data[:3], time_limit=32, part2=True))
+    print("Part 2:", solve(data[:3], time_limit=32, part2=True))
 
 
 if __name__ == '__main__':
