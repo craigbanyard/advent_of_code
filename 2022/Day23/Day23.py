@@ -1,7 +1,86 @@
 from helper import aoc_timer
 from collections import deque
 import itertools as it
+import numpy as np
+from scipy.ndimage import correlate
 
+
+# NumPy/SciPy solution
+
+KERNEL_N = np.array([
+    [1, 1, 1],
+    [0, 0, 0],
+    [0, 0, 0]
+], dtype=int)
+KERNEL_W = np.rot90(KERNEL_N)
+KERNEL_S = np.rot90(KERNEL_W)
+KERNEL_E = np.rot90(KERNEL_S)
+KERNEL = KERNEL_N | KERNEL_W | KERNEL_S | KERNEL_E
+
+
+@aoc_timer
+def get_input_np(path: str) -> np.ndarray:
+    M = {'.': 0, '#': 1}
+    G = [[M[c] for c in line]
+         for line in open(path).read().splitlines()]
+    return np.array(G, dtype=bool)
+
+
+def bounding_box_np(G: np.ndarray) -> np.ndarray:
+    rows = np.any(G, axis=1)
+    cols = np.any(G, axis=0)
+    rmin, rmax = np.where(rows)[0][[0, -1]]
+    cmin, cmax = np.where(cols)[0][[0, -1]]
+    return G[rmin:rmax+1, cmin:cmax+1]
+
+
+def move_np(G, kernel_cycle):
+    G = np.pad(G, [(1,)], mode='constant', constant_values=0)
+    G_ = G * ((correlate(G, KERNEL, mode='constant') * G) > 0)
+    P = np.zeros_like(G_, dtype=bool)   # Proposed
+    M = np.zeros_like(G_, dtype=bool)   # Moved
+    C = np.zeros_like(G_, dtype=bool)   # Collisions
+    rollback = []
+    # Propose movements
+    for k, d, ax in kernel_cycle:
+        H = ~P * G_ * ((correlate(G, k, mode='constant') * G_) == 0)
+        P |= H
+        m = np.roll(H, d, ax)
+        C |= (M & m)
+        M |= m
+        rollback.append((-d, ax))
+    # Rollback collisions
+    R = ~P & G
+    if C.any():
+        for d, ax in rollback:
+            R |= (np.roll(C, d, ax) & G)
+    return bounding_box_np(M & ~C | R)
+
+
+def draw_np(G: np.ndarray) -> str:
+    return '\n'.join(''.join('#' if c else '.' for c in r) for r in G)
+
+
+@aoc_timer
+def solve_np(data: np.ndarray, rounds: int | None = None,
+             part1: bool = True) -> int:
+    kernel_cycle = deque([
+        (KERNEL_N, -1, 0),
+        (KERNEL_S, 1, 0),
+        (KERNEL_W, -1, 1),
+        (KERNEL_E, 1, 1),
+    ])
+    G = data
+    for round in it.count(start=1):
+        if np.array_equal(G, (G := move_np(G, kernel_cycle))):
+            break
+        if part1 and round == rounds:
+            return (~G).sum()
+        kernel_cycle.rotate(-1)
+    return round
+
+
+# Base Python solution
 
 @aoc_timer
 def get_input(path: str) -> set[complex]:
@@ -71,7 +150,7 @@ def move(elves: set[complex], D: deque[complex]) -> set[complex]:
 
 @aoc_timer
 def solve(elves: set[complex], rounds: int | None = None,
-          part1: bool = True) -> int:
+          part1: bool = True, vis: bool = False) -> int:
 
     N = len(elves)
     D = deque([
@@ -93,9 +172,14 @@ def solve(elves: set[complex], rounds: int | None = None,
 # %% Output
 def main() -> None:
     print("AoC 2022\nDay 23")
+    print("\nBase Python solution...")
     data = get_input('input.txt')
     print("Part 1:", solve(data, rounds=10))
     print("Part 2:", solve(data, part1=False))
+    print("\nNumPy/SciPy solution...")
+    data = get_input_np('input.txt')
+    print("Part 1:", solve_np(data, rounds=10))
+    print("Part 2:", solve_np(data, part1=False))
 
 
 if __name__ == '__main__':
