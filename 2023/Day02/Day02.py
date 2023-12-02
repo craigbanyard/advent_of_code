@@ -40,7 +40,7 @@ def solve(data: Iterator[str]) -> tuple[int]:
 
 
 def main() -> None:
-    print("AoC 2023\nDay 01")
+    print("AoC 2023\nDay 02")
     data = get_input('input.txt')
     p1, p2 = solve(data)
     print("Part 1:", p1)
