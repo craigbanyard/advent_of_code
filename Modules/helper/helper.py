@@ -8,7 +8,7 @@ from typing import Iterator
 
 
 class Colours:
-    """ANSI code class for terminal highlighting."""
+    '''ANSI code class for terminal highlighting.'''
 
     ENDC = '\033[0m'
     BOLD = '\033[1m'
@@ -17,7 +17,7 @@ class Colours:
     STRIKE = '\033[9m'
 
     class fg:
-        """Foreground colours."""
+        '''Foreground colours.'''
 
         BLACK = '\033[30m'
         RED = '\033[31m'
@@ -36,7 +36,7 @@ class Colours:
         LIGHTCYAN = '\033[96m'
 
     class bg:
-        """Background colours."""
+        '''Background colours.'''
 
         BLACK = '\033[40m'
         RED = '\033[41m'
@@ -46,6 +46,26 @@ class Colours:
         PURPLE = '\033[45m'
         CYAN = '\033[46m'
         LIGHTGREY = '\033[47m'
+
+    def __repr__(self) -> str:
+        '''Demo of usage of the class.'''
+        def attrs_to_str(cls, label) -> str:
+            '''
+            Return a string representation of the public attributes of cls with
+            type str.
+            '''
+            out = f'{label}\n'
+            attrs = {k: v for k, v in vars(cls).items()
+                     if not k.startswith('__') and isinstance(v, str)}
+            for k, v in attrs.items():
+                out += f'{k}: {v}{k}{self.ENDC}\n'
+            out += '\n'
+            return out
+
+        classes = [Colours, Colours.fg, Colours.bg]
+        labels = ['Styles', 'Foregrounds', 'Backgrounds']
+        return ''.join([attrs_to_str(cls, label)
+                        for cls, label in zip(classes, labels)])
 
 
 class Grid:
@@ -97,10 +117,7 @@ class Grid:
         return out
 
     def items(self) -> dict:
-        '''
-        Allow simple iteration over the grid coordinates and
-        values.
-        '''
+        '''Allow simple iteration over the grid coordinates and values.'''
         return self.grid_dict.items()
 
     def where(self, value) -> Iterator[tuple]:
@@ -125,8 +142,7 @@ class Grid:
 
     def _traversal_complete(self, node, cost, end, max_cost) -> bool:
         '''
-        Determine whether the end conditions of the traversal
-        are satisfied.
+        Determine whether the end conditions of the traversal are satisfied.
         '''
         if cost[node] >= max_cost:
             return True
@@ -148,10 +164,10 @@ class Grid:
             return self.G[r][c] == self._space
         return False
 
-    def neighbours(self, node) -> tuple[int, int]:
+    def neighbours(self, node) -> Iterator[tuple]:
         '''
-        Return a generator of valid neighbours (open spaces)
-        of the current node.
+        Return a generator of valid neighbours (open spaces) of the current
+        node.
         '''
         r, c = node
         for dr, dc in self.D:
@@ -238,8 +254,7 @@ class Grid:
 
     def run_algorithm(self, start, end, algorithm) -> tuple[dict, dict]:
         '''
-        Run the specified algorithm for the specified start and
-        end nodes.
+        Run the specified algorithm for the specified start and end nodes.
         '''
         algorithms = {
             'bfs': self.bfs,
@@ -252,8 +267,8 @@ class Grid:
 
     def shortest_path(self, start, end, algorithm) -> int:
         '''
-        Return the shortest path from start to end as computed
-        by the specified algorithm.
+        Return the shortest path from start to end as computed by the specified
+        algorithm.
         '''
         _, cost = self.run_algorithm(start, end, algorithm)
         match end:
@@ -266,8 +281,8 @@ class Grid:
 
     def construct_path(self, start, end, visited) -> set:
         '''
-        Return a set of nodes (r, c) that comprise the path
-        from start to end implied by the visited dictionary.
+        Return a set of nodes (r, c) that comprise the path from start to end
+        implied by the visited dictionary.
         If end is None, return the set of visited nodes.
         '''
         if end is None:
@@ -285,9 +300,8 @@ class Grid:
 
     def optimal_path(self, start, end, algorithm) -> set:
         '''
-        Return a set of nodes (r, c) that comprise the
-        optimal path from start to end determined by
-        performing the specified search algorithm.
+        Return a set of nodes (r, c) that comprise the optimal path from start
+        to end determined by performing the specified search algorithm.
         If end is None, return the set of visited nodes.
         '''
         visited, _ = self.run_algorithm(start, end, algorithm)
@@ -295,9 +309,8 @@ class Grid:
 
     def visualise_path(self, path, **kwargs) -> str | None:
         '''
-        Return a string representation of the path provided
-        as the argument. Optimal path marker can be provided
-        as the marker keyword argument.
+        Return a string representation of the path provided as the argument.
+        Optimal path marker can be provided as the marker keyword argument.
         '''
         if not path:
             return None
@@ -323,19 +336,21 @@ class Grid:
 
 
 def aoc_timer(func=None, *, repeat=1, metric=min, **margs):
-    """
-    Decorator that times the call of a function, func, and prints its execution time.
-    If func is called with keyword argument time=False, the print will be surpressed.
+    '''
+    Decorator that times the call of a function, func, and prints its execution
+    time. If func is called with keyword argument time=False, the print will be
+    surpressed.
 
-    With optional repeat, run func repeat times, appending successive execution times
-    to list (or numpy array) [times].
-    With optional metric, apply the function metric to the array [times] to calculate
-    execution time to display. Default is min, i.e. display minimum execution time.
+    With optional repeat, run func repeat times, appending successive execution
+    times to list (or numpy array) [times].
+    With optional metric, apply the function metric to the array [times] to
+    calculate execution time to display. Default is min, i.e. display minimum
+    execution time.
       Expected built-ins: {min, max, list, sorted}
-      Expected custom: {'mean', 'mean_std', 'std', 'var', ... any numpy array method}
+      Expected custom: {'mean', 'mean_std', 'std', 'var', ...}
       https://numpy.org/doc/stable/reference/routines.statistics.html
       Keyword arguments of metric must be specified as **margs.
-    """
+    '''
 
     def format_time(t):
         units = ['ns', 'μs', 'ms', 's']
