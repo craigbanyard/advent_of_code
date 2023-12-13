@@ -142,3 +142,4 @@ cython_debug/
 
 # Temp AoC files
 DayXX/
+MakeTemplate.py
