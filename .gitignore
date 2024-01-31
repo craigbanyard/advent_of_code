@@ -141,5 +141,5 @@ cython_debug/
 .vscode
 
 # Temp AoC files
-DayXX/
-MakeTemplate.py
+# DayXX/
+# MakeTemplate.py
