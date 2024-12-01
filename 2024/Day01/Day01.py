@@ -11,9 +11,10 @@ def get_input(path: str) -> list[list[int]]:
 
 @aoc_timer
 def solve(data: list[list[int]]) -> tuple[int, int]:
-    left, right = map(Counter, zip(*data))
+    L, R = zip(*data)
+    left, right = map(Counter, (L, R))
     p1, p2 = 0, 0
-    for a, b in zip(*map(sorted, zip(*data))):
+    for a, b in zip(*map(sorted, (L, R))):
         p1 += abs(a - b)
         p2 += a * left.pop(a, 0) * right[a]
     return p1, p2
