@@ -11,15 +11,8 @@ def get_input(path: str) -> Iterator[list[int]]:
 
 
 def safe(report: list[int]) -> bool:
-    s = 0
-    for a, b in it.pairwise(report):
-        if (d := a - b) < 0:
-            s = 1 if s >= 0 else 0
-        elif d > 0:
-            s = -1 if s <= 0 else 0
-        if not (s and 1 <= abs(d) <= 3):
-            return False
-    return True
+    d = set(a - b for a, b in it.pairwise(report))
+    return d.issubset({1, 2, 3}) or d.issubset({-1, -2, -3})
 
 
 @aoc_timer
