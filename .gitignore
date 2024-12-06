@@ -143,3 +143,7 @@ cython_debug/
 # Temp AoC files
 DayXX/
 MakeTemplate.py
+
+# AoC input files
+input.txt
+sample*.txt
