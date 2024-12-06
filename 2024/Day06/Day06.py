@@ -17,16 +17,14 @@ class Map:
             "<": -1+0j,
         }
         self.W = set()
-        self.R = 0
         with open(self.path) as f:
             for r, line in enumerate(f.read().splitlines()):
-                self.R += 1
                 for c, ch in enumerate(line):
                     if ch == "#":
                         self.W.add(complex(c, r))
                     elif (s := D.get(ch)):
                         self.d, self.pos = s, complex(c, r)
-            self.C = len(line)
+            self.R, self.C = r + 1, len(line)
 
     def patrol(self, walls: set[complex] | None = None, log: bool = True) -> bool:
         walls = walls or self.W.copy()
