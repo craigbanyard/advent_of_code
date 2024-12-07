@@ -20,9 +20,9 @@ def concat(a: int, b: int) -> int:
 
 
 def insert_ops(eq: list[int], ops: list[Callable]) -> int:
-    target, *vals = eq
-    for ops in it.product(ops, repeat=len(vals) - 1):
-        ans, *rest = vals
+    target, first, *rest = eq
+    for ops in it.product(ops, repeat=len(rest)):
+        ans = first
         for op, n in zip(ops, rest):
             ans = op(ans, n)
             if ans > target:
