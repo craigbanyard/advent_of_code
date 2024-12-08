@@ -4,9 +4,11 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Self
 
+type Data = tuple[dict[int, set[int]], list[int]]
+
 
 @aoc_timer
-def get_input(path: str) -> tuple[dict[int, set[int]], list[int]]:
+def get_input(path: str) -> Data:
     with open(path) as f:
         R = defaultdict(set)
         rules, updates = f.read().split("\n\n")
@@ -18,7 +20,7 @@ def get_input(path: str) -> tuple[dict[int, set[int]], list[int]]:
 
 
 @aoc_timer
-def solve(data: tuple[dict[int, set[int]], list[int]]) -> tuple[int, int]:
+def solve(data: Data) -> tuple[int, int]:
     R, U = data
 
     @dataclass
