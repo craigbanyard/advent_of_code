@@ -25,7 +25,7 @@ class Map:
                         self.obs.add(complex(c, r))
                     elif d := D.get(ch):
                         self.d, self.pos = d, complex(c, r)
-            self.R, self.C = r + 1, len(line)
+            self.R, self.C = r + 1, c + 1
 
     def patrol(
         self,
