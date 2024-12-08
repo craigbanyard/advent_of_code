@@ -4,8 +4,11 @@ from collections import defaultdict
 import itertools as it
 
 
+type Data = tuple[dict[str, list[complex]], tuple[int, int]]
+
+
 @aoc_timer
-def get_input(path: str) -> tuple[dict, int, int]:
+def get_input(path: str) -> Data:
     A = defaultdict(list)
     with open(path) as f:
         for r, line in enumerate(f.read().splitlines()):
@@ -18,7 +21,7 @@ def get_input(path: str) -> tuple[dict, int, int]:
 
 class Antinodes(set):
     """Only supports creation of empty set objects."""
-    def __init__(self, bounds: tuple[int]) -> None:
+    def __init__(self, bounds: tuple[int, int]) -> None:
         self.R, self.C = bounds
 
     def create(self, element: complex, distance: complex | None = None) -> None:
@@ -30,7 +33,7 @@ class Antinodes(set):
 
 
 @aoc_timer
-def solve(data: tuple[dict, int, int]) -> tuple[int]:
+def solve(data: Data) -> tuple[int, int]:
     A, bounds = data
     p1, p2 = Antinodes(bounds), Antinodes(bounds)
     for _, antennas in A.items():
