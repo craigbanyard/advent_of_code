@@ -37,10 +37,10 @@ def solve(data: Data) -> tuple[int, int]:
     A, bounds = data
     p1, p2 = Antinodes(bounds), Antinodes(bounds)
     for _, antennas in A.items():
-        for a, b in it.combinations(antennas, 2):
-            for p, q in zip([a, b], [a - b, b - a]):
-                p1.create(p + q)
-                p2.create(p, q)
+        for a, b in it.product(antennas, repeat=2):
+            if d := a - b:
+                p1.create(a + d)
+                p2.create(a, d)
     return len(p1), len(p2)
 
 
