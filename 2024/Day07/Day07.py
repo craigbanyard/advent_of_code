@@ -1,6 +1,5 @@
 # %% Day 07
 from helper import aoc_timer
-import itertools as it
 import math
 from operator import add, mul
 import re
@@ -20,15 +19,12 @@ def concat(a: int, b: int) -> int:
 
 
 def insert_ops(eq: list[int], ops: list[Callable]) -> int:
-    target, first, *rest = eq
-    for ops in it.product(ops, repeat=len(rest)):
-        ans = first
-        for op, n in zip(ops, rest):
-            ans = op(ans, n)
-            if ans > target:
-                break
-        if ans == target:
-            return ans
+    if len(eq) == 2:
+        return eq[0] == eq[1]
+    target, a, b, *rest = eq
+    for op in ops:
+        if (ans := op(a, b)) <= target and insert_ops([target, ans, *rest], ops):
+            return target
     return 0
 
 
