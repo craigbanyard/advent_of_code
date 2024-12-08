@@ -3,7 +3,6 @@ from helper import aoc_timer
 from collections import defaultdict
 import itertools as it
 
-
 type Data = tuple[dict[str, list[complex]], tuple[int, int]]
 
 
