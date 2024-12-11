@@ -425,6 +425,13 @@ def sign(n: int) -> int:
     return n // abs(n)
 
 
+def num_digits(n: int) -> int:
+    """Determine the number of digits in the given integer."""
+    if not n:
+        return 1
+    return int(math.log10(abs(n)) + 1)
+
+
 def main():
     pass
 
