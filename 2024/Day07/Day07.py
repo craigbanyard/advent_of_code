@@ -1,6 +1,5 @@
 # %% Day 07
-from helper import aoc_timer
-import math
+from helper import aoc_timer, num_digits
 from operator import add, mul
 import re
 from typing import Callable, Iterator
@@ -15,7 +14,7 @@ def get_input(path: str) -> Iterator[list[int]]:
 
 
 def concat(a: int, b: int) -> int:
-    return a * 10 ** int(math.log10(b) + 1) + b
+    return a * 10 ** num_digits(b) + b
 
 
 def insert_ops(eq: list[int], ops: list[Callable]) -> int:

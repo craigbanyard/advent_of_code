@@ -1,5 +1,5 @@
 # %% Day 11
-from helper import aoc_timer
+from helper import aoc_timer, num_digits
 from collections import Counter
 import math
 
@@ -17,7 +17,7 @@ def solve(data: list[int], blinks: int = 25) -> int:
         for stone, n in stones.copy().items():
             if stone == 0:
                 stones[1] += n
-            elif (d := int(math.log10(stone) + 1)) % 2 == 0:
+            elif (d := num_digits(stone)) % 2 == 0:
                 a, b = divmod(stone, math.pow(10, d // 2))
                 stones[a] += n
                 stones[b] += n
