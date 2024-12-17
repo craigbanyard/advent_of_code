@@ -24,10 +24,11 @@ def solve(data: Data, units: int = 0) -> int:
     for ax, ay, bx, by, tx, ty in data:
         tx += units
         ty += units
-        a = (tx * by - bx * ty) / (ax * by - bx * ay)
-        b = (tx * ay - ax * ty) / (bx * ay - ax * by)
-        if a == int(a) and b == int(b):
-            ans += int(3 * a + b)
+        d = (ax * by - bx * ay)
+        a, p = divmod(tx * by - bx * ty, d)
+        b, q = divmod(ax * ty - tx * ay, d)
+        if p == q == 0:
+            ans += 3 * a + b
     return ans
 
 
@@ -35,7 +36,7 @@ def main() -> None:
     print("AoC 2024\nDay 13")
     data = get_input("input.txt")
     print("Part 1:", solve(data))
-    print("Part 2:", solve(data, units=10000000000000))
+    print("Part 2:", solve(data, units=int(1e13)))
 
 
 if __name__ == "__main__":
