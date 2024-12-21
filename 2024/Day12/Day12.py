@@ -15,13 +15,6 @@ def get_input(path: str) -> Data:
         return f.read().splitlines()
 
 
-def highlight(s: str, colour: str | list[str]) -> str:
-    """This should be added to the Colours class."""
-    if isinstance(colour, list):
-        colour = "".join(colour)
-    return f"{colour}{s}{Colours.ENDC}"
-
-
 def view(data: Data) -> None:
     colours = [
         Colours.fg.RED,
@@ -41,7 +34,7 @@ def view(data: Data) -> None:
     out = StringIO()
     for r in data:
         for c in r:
-            out.write(highlight(c, char_colours[c]))
+            out.write(Colours.highlight(c, char_colours[c]))
         out.write("\n")
     print(f"\n{out.getvalue()}")
 

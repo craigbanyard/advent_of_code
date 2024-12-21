@@ -74,6 +74,13 @@ class Colours:
             [attrs_to_str(cls, label) for cls, label in zip(classes, labels)]
         )
 
+    @staticmethod
+    def highlight(s: str, colour: str | list[str]) -> str:
+        """Highlight the given string, s, with given colour(s)."""
+        if isinstance(colour, list):
+            colour = "".join(colour)
+        return f"{colour}{s}{Colours.ENDC}"
+
 
 class Grid:
     type Node = tuple[int, int]
