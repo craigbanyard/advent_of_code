@@ -15,8 +15,7 @@ def get_input(path: str, upscaled: bool = False) -> Data:
     with open(path) as f:
         w, m = f.read().split("\n\n")
         if upscaled:
-            for k, v in UPSCALE.items():
-                w = w.replace(k, v)
+            w = w.translate(str.maketrans(UPSCALE))
         w = np.array(
             [list(map(MAP.get, [*line])) for line in w.splitlines()], dtype=np.byte
         )
@@ -26,8 +25,8 @@ def get_input(path: str, upscaled: bool = False) -> Data:
 def view(warehouse: np.ndarray, prefix: str = "") -> None:
     w = warehouse.astype("object")
     for k, v in MAP.items():
-        if k == "@":
-            k = f"{Colours.fg.CYAN}{k}{Colours.ENDC}"
+        if v == R:
+            k = Colours.highlight(k, Colours.fg.CYAN)
         w[w == v] = k
     print(f"{prefix}{"\n".join("".join(c for c in r) for r in w)}")
 
