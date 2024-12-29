@@ -4,15 +4,14 @@ from collections import deque
 from copy import deepcopy
 import re
 
-type Data = list[str]
-
 
 class Computer:
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, disassembled: bool = False) -> None:
         self.ip = 0
         self.R = {}
         self.P = []
         self.output = []
+        self.disassembled = disassembled
         self.get_input(path)
 
     @aoc_timer
@@ -33,12 +32,7 @@ class Computer:
         self.output = []
 
     def combo(self, operand: int) -> int:
-        return {
-            4: self.R["A"],
-            5: self.R["B"],
-            6: self.R["C"],
-            7: None,
-        }.get(operand, operand)
+        return [0, 1, 2, 3, self.R["A"], self.R["B"], self.R["C"]][operand]
 
     def out(self) -> str:
         return ",".join(map(str, self.output))
@@ -49,8 +43,10 @@ class Computer:
         return self.output == self.P
 
     def run(self) -> None:
+        if self.disassembled:
+            return self.run_disassembled()
         while self.ip < self.max_ip:
-            opcode, operand = self.P[self.ip], self.P[self.ip + 1]
+            opcode, operand = self.P[self.ip : self.ip + 2]
             self.ip += 2
             match opcode:
                 case 0:
@@ -58,14 +54,14 @@ class Computer:
                 case 1:
                     self.R["B"] ^= operand
                 case 2:
-                    self.R["B"] = self.combo(operand) % 8
+                    self.R["B"] = self.combo(operand) & 7
                 case 3:
                     if self.R["A"]:
                         self.ip = operand
                 case 4:
                     self.R["B"] ^= self.R["C"]
                 case 5:
-                    self.output.append(self.combo(operand) % 8)
+                    self.output.append(self.combo(operand) & 7)
                 case 6:
                     self.R["B"] = self.R["A"] >> self.combo(operand)
                 case 7:
@@ -73,34 +69,41 @@ class Computer:
                 case _:
                     assert False, opcode
 
-        @staticmethod
-        def run_deconstructed(a: int) -> list[int]:
-            """
-            Deconstructed input program for the purposes of solving the puzzle. Used to
-            test various starting values for the A register versus the program output.
-            The A register is processed in octal and the B and C registers are used as
-            temporary storage for intermediate calculations.
-            """
-            out = []
-            while True:
-                b = a % 8 ^ 6
-                c = a >> b
-                b ^= c ^ 4
-                out.append(b % 8)
-                a >>= 3
-                if a == 0:
-                    return out
+    def run_disassembled(self) -> None:
+        """
+        Disassembled input program for the purposes of solving the puzzle. Used to test
+        various starting values for the A register versus the program output. The A
+        register is processed in octal, consuming its least significant three bits on
+        each iteration, whilst the B and C registers are used as temporary storage for
+        intermediate calculations.
+        To solve, we work backwards through the input program, determining which input
+        values for the A register yield the desired digit of the program. We continue in
+        a BFS-like walk, adding three bits (multiplying by 8) and varying those new bits
+        (adding offsets between 0 and 7) until we match all digits of the input program.
+        """
+        a = self.R["A"]
+        while True:
+            b = a & 7 ^ 6
+            c = a >> b
+            b ^= c ^ 4
+            self.output.append(b & 7)
+            a >>= 3
+            if a == 0:
+                return
 
 
 @aoc_timer
 def solve(vm: Computer) -> tuple[str, int]:
     vm.run()
     p1 = vm.out()
-    Q = deque([(idx := -1, 0, deepcopy(vm))])
-    while Q and idx <= vm.max_ip:
+    vm.reset()
+    Q = deque([(-1, 0, deepcopy(vm))])
+    while Q:
         idx, a, vm = Q.popleft()
         if vm.replicated(partial=False):
             return p1, a
+        if idx > vm.max_ip:
+            continue
         idx += 1
         a *= 8
         for offset in range(8):
@@ -114,7 +117,7 @@ def solve(vm: Computer) -> tuple[str, int]:
 
 def main() -> None:
     print("AoC 2024\nDay 17")
-    vm = Computer("input.txt")
+    vm = Computer("input.txt", disassembled=False)
     p1, p2 = solve(vm)
     print("Part 1:", p1)
     print("Part 2:", p2)
