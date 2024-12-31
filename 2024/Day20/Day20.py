@@ -2,6 +2,8 @@
 from helper import aoc_timer, Grid
 from collections import deque
 import math
+import numpy as np
+from scipy.ndimage import generic_filter
 from typing import Any, Iterator
 
 type Data = list[list[str]]
@@ -74,12 +76,35 @@ class Racetrack(Grid):
                     result += 1
         return result
 
+    def cheat_convolve(self, cost: CostDict, duration: int, threshold: int) -> int:
+        """
+        Implementation of `cheat` using convolution. Pass a kernel representing all
+        positions that can be reached within `duration` steps over the array of costs
+        and count occurrences where the cheat will save at least `threshold` steps.
+        """
+        costs = np.full_like(self.G, np.nan, dtype="float64")
+        for pos, t in cost.items():
+            costs[pos] = t
+
+        d = duration * 2 + 1
+        i, j = np.indices((d, d), sparse=True)
+        dists = (abs((i - duration)) + abs((j - duration)))
+        kernel = dists <= duration
+        dists = dists[kernel].reshape(-1)
+
+        def f(arr: np.ndarray, dists: np.ndarray) -> int:
+            return np.count_nonzero(arr - arr[arr.size // 2] - dists >= threshold)
+
+        return generic_filter(
+            costs, f, footprint=kernel, mode="constant", extra_arguments=(dists,)
+        ).sum(dtype=int)
+
 
 @aoc_timer
-def solve(data: Data, duration: int, threshold: int = 100) -> int:
+def solve(data: Data, duration: int, threshold: int = 100, conv: bool = True) -> int:
     racetrack = Racetrack(G=data)
     cost = racetrack.bfs("S", "E")
-    return racetrack.cheat(cost, duration, threshold)
+    return (racetrack.cheat, racetrack.cheat_convolve)[conv](cost, duration, threshold)
 
 
 def main() -> None:
