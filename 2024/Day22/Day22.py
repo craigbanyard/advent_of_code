@@ -22,11 +22,12 @@ def solve(data: list[int], t: int = 2000) -> tuple[int, int]:
     for n in data:
         changes = deque([], maxlen=4)
         seen = set()
+        p = n % 10
         for _ in range(t):
-            p = n % 10
             n = evolve(n)
             q = n % 10
             changes.append(q - p)
+            p = q
             if len(changes) == 4 and (c := tuple(changes)) not in seen:
                 seen.add(c)
                 prices[c] += q
