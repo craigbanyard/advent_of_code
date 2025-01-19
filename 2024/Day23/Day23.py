@@ -21,14 +21,12 @@ def networks(data: Data, hint: str, n: int, prune: bool = False) -> set[frozense
     nets = set()
     for root, connections in data.items():
         for computers in it.combinations(connections, n - 1):
-            if not any([c.startswith(hint) for c in (root, *computers)]):
+            if not any(c.startswith(hint) for c in (root, *computers)):
                 continue
-            connected = True
             for a, b in it.combinations(computers, 2):
                 if a not in data[b]:
-                    connected = False
                     break
-            if connected:
+            else:
                 nets.add(frozenset((root, *computers)))
         if prune and len(nets) > 1:
             break
