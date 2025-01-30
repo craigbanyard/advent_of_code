@@ -145,5 +145,5 @@ DayXX/
 MakeTemplate.py
 
 # AoC input files
-input.txt
+input*.txt
 sample*.txt
